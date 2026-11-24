@@ -1,0 +1,4652 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MARC URBAN LAB (MUL) — Urbanisme, Architecture &amp; SIG</title>
+  <meta name="description" content="MARC URBAN LAB — Pour un urbanisme durable et des territoires mieux pensés. Études, réalisation et suivi de projets à Douala, Cameroun." />
+  <meta property="og:title" content="MARC URBAN LAB (MUL) — Urbanisme, Architecture &amp; SIG" />
+  <meta property="og:description" content="Pour un urbanisme durable et des territoires mieux pensés. Études, réalisation et suivi de projets." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#f5f5f3" />
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================================
+       1. GOOGLE FONTS WOFF2 (Geist + Geist Mono + Newsreader Regular & Italic)
+    ========================================================================= */
+    @font-face {
+      font-family: "Geist";
+      src: url("https://fonts.gstatic.com/s/geist/v5/gyByhwUxId8gMEwcGFU.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Newsreader";
+      src: url("https://fonts.gstatic.com/s/newsreader/v26/cY9AfjOCX1hbuyalUrK4397yjA.woff2") format("woff2");
+      font-weight: 300 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Newsreader";
+      src: url("https://fonts.gstatic.com/s/newsreader/v26/cY9CfjOCX1hbuyalUrK439vCjohC.woff2") format("woff2");
+      font-weight: 300 500;
+      font-style: italic;
+      font-display: swap;
+    }
+
+    /* =========================================================================
+       2. KR.ST LIGHT ARCHITECTURAL TOKENS & RESET
+    ========================================================================= */
+    :root {
+      --bg: #f5f5f3;
+      --ink: #111113;
+      --mute: #6b6b68;
+      --pill: #e8e8e5;
+      --pill-h: #dcdcd8;
+      --line: #e0e0dc;
+      --cobalt: #1621ff;
+      --teal: #1E86AC;
+      --stage-bg: #ebebea;
+      --ease: cubic-bezier(.16, 1, .3, 1);
+      --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+      --serif: "Newsreader", Georgia, "Times New Roman", serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Subtle architectural paper grain overlay */
+    #paper-grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 95;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+
+    #view-home {
+      transition: opacity 0.4s var(--ease);
+    }
+
+    #view-home.is-fading {
+      opacity: 0;
+    }
+
+    html, body {
+      overflow-x: clip;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    ::selection {
+      background: rgba(17, 17, 19, 0.14);
+      color: var(--ink);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; color: inherit; }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    .tabular { font-variant-numeric: tabular-nums; }
+
+    /* =========================================================================
+       3. SECTION 1 — HERO WITH 3D FIBONACCI SPHERE BACKGROUND (#hero, 100vh)
+    ========================================================================= */
+    #hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 640px;
+      background: var(--bg);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    #hero-canvas-mount {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      cursor: grab;
+      touch-action: pan-y;
+    }
+
+    #hero-canvas-mount.is-dragging { cursor: grabbing; }
+    #hero-canvas-mount.is-hovering { cursor: pointer; }
+    #hero-canvas-mount canvas { display: block; width: 100%; height: 100%; }
+
+    /* KR.ST Intro Sequence Overlay */
+    #hero-intro {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .intro-wordmark {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: clamp(44px, 6vw, 64px);
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      line-height: 1;
+      opacity: 0;
+    }
+
+    .intro-counter {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--mute);
+      letter-spacing: 0.08em;
+      opacity: 0;
+    }
+
+    /* Hero Editorial Typography Overlay */
+    .hero-chrome {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      padding: clamp(22px, 3vw, 34px) clamp(20px, 3.5vw, 44px) clamp(78px, 9vh, 92px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-lockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      white-space: nowrap;
+    }
+
+    .brand-label {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+
+    .hero-kicker {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--mute);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .hero-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .hero-editorial {
+      max-width: 640px;
+      padding: 14px 18px 14px 0;
+      border-radius: 14px;
+      background: radial-gradient(ellipse at 32% 65%, rgba(245, 245, 243, 0.88) 0%, rgba(245, 245, 243, 0.56) 58%, transparent 82%);
+    }
+
+    .hero-headline {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(40px, 4.5vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      text-wrap: balance;
+      margin-bottom: 12px;
+    }
+
+    .hero-sub {
+      font-family: var(--sans);
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--mute);
+      letter-spacing: 0.01em;
+    }
+
+    .hero-scroll-cue {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.24em;
+      color: var(--mute);
+      text-transform: uppercase;
+      pointer-events: auto;
+      white-space: nowrap;
+      padding: 6px 0;
+      transition: color 0.2s var(--ease);
+    }
+
+    .hero-scroll-cue:hover { color: var(--ink); }
+
+    /* Bottom hover caption for Sphere */
+    #sphere-hover-caption {
+      position: absolute;
+      left: 50%;
+      bottom: 84px;
+      transform: translate(-50%, 6px);
+      z-index: 5;
+      pointer-events: none;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.22s var(--ease), transform 0.22s var(--ease);
+      background: rgba(245, 245, 243, 0.86);
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+    }
+
+    #sphere-hover-caption.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .sphere-cap-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .sphere-cap-meta {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 13px;
+      color: var(--mute);
+      margin-left: 8px;
+    }
+
+    /* KR.ST Focused Plane Preview Band (Light frosted sheet with multi-angle switcher) */
+    #hero-preview {
+      position: absolute;
+      right: clamp(16px, 3vw, 40px);
+      top: 50%;
+      transform: translate(24px, -50%);
+      width: min(330px, calc(100vw - 32px));
+      max-height: calc(100vh - 150px);
+      overflow-y: auto;
+      z-index: 12;
+      padding: 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+    }
+
+    body:not(.sw-gl) #hero-preview {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    #hero-preview.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(0, -50%);
+    }
+
+    .preview-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .preview-cat {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 3px;
+    }
+
+    .preview-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .light-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--pill);
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.18s var(--ease);
+    }
+
+    .light-close-btn:hover { background: var(--pill-h); }
+
+    .preview-specs {
+      font-size: 12px;
+      color: var(--mute);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .preview-desc {
+      font-size: 13px;
+      line-height: 1.52;
+      color: var(--ink);
+      opacity: 0.85;
+      margin-bottom: 14px;
+    }
+
+    .preview-angles-label {
+      font-size: 11px;
+      color: var(--mute);
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .preview-thumbs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .preview-thumb {
+      aspect-ratio: 16 / 9;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1.5px solid transparent;
+      background: var(--pill);
+      padding: 0;
+      cursor: pointer;
+      opacity: 0.68;
+      transition: opacity 0.18s var(--ease), border-color 0.18s var(--ease);
+    }
+
+    .preview-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-thumb.is-active,
+    .preview-thumb:hover {
+      opacity: 1;
+      border-color: var(--ink);
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-ink {
+      flex: 1;
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: none;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.18s var(--ease);
+    }
+
+    .btn-ink:hover { opacity: 0.86; }
+
+    /* =========================================================================
+       4. SECTION 2 — LE CABINET & RAIL MAGNÉTIQUE (#cabinet, 100vh)
+    ========================================================================= */
+    #cabinet {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 640px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    #cabinet-canvas-mount {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      cursor: grab;
+      touch-action: pan-y;
+    }
+
+    #cabinet-canvas-mount.is-dragging { cursor: grabbing; }
+    #cabinet-canvas-mount.is-pointer { cursor: pointer; }
+    #cabinet-canvas-mount canvas { display: block; width: 100%; height: 100%; }
+
+    .cabinet-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 84px;
+      transform: translateX(-50%);
+      z-index: 2;
+      pointer-events: none;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+      opacity: 0.72;
+      white-space: nowrap;
+    }
+
+    /* =========================================================================
+       5. SECTION 3 — LA GRILLE PROJETS WEBGL (#projets)
+    ========================================================================= */
+    #projets {
+      position: relative;
+      width: 100%;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      padding: 96px 0 36px;
+    }
+
+    .projets-editorial-head {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0 46px 42px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 36px;
+      flex-wrap: wrap;
+    }
+
+    .projets-intro-col {
+      max-width: 720px;
+      flex: 1 1 460px;
+    }
+
+    .projets-kicker {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 14px;
+    }
+
+    .projets-editorial-sentence {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(26px, 3.2vw, 40px);
+      line-height: 1.28;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .filter-kw {
+      display: inline;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 400;
+      line-height: inherit;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      padding: 0 1px 1px;
+      cursor: pointer;
+      border-bottom: 1.5px solid rgba(17, 17, 19, 0.24);
+      transition: color 0.24s var(--ease), border-color 0.24s var(--ease), background-color 0.24s var(--ease);
+    }
+
+    .filter-kw sup {
+      font-family: var(--mono);
+      font-size: 0.34em;
+      font-weight: 500;
+      color: var(--teal);
+      letter-spacing: 0.04em;
+      vertical-align: super;
+      margin-left: 2px;
+    }
+
+    .filter-kw:hover,
+    .filter-kw.is-active {
+      color: var(--teal);
+      border-bottom-color: var(--teal);
+    }
+
+    .filter-kw.is-active {
+      background: rgba(30, 134, 172, 0.08);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .projets-filter-reset {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      background: rgba(30, 134, 172, 0.08);
+      border: 1px solid rgba(30, 134, 172, 0.26);
+      border-radius: 999px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.2s var(--ease), color 0.2s var(--ease);
+    }
+
+    .projets-filter-reset[hidden] { display: none; }
+    .projets-filter-reset:hover { background: var(--teal); color: #ffffff; }
+
+    .projets-metrics {
+      display: flex;
+      align-items: stretch;
+      flex-shrink: 0;
+    }
+
+    .projets-metric {
+      padding: 2px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .projets-metric:first-child { padding-left: 0; }
+    .projets-metric:last-child { padding-right: 0; }
+
+    .projets-metric + .projets-metric {
+      border-left: 1px solid rgba(17, 17, 19, 0.1);
+    }
+
+    .projets-metric-val {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(28px, 2.7vw, 38px);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .projets-metric-lbl {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--mute);
+      white-space: nowrap;
+    }
+
+    /* Rounded mineral panel hosting the 3D Cylindrical Ring */
+    #ring-panel {
+      position: relative;
+      margin: 0 20px 24px;
+      border-radius: 24px;
+      background: var(--stage-bg);
+      border: 1px solid rgba(17, 17, 19, 0.06);
+      overflow: hidden;
+      height: clamp(470px, 64vh, 630px);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
+      cursor: grab;
+    }
+
+    #ring-panel.is-dragging {
+      cursor: grabbing;
+    }
+
+    #ring-atmo {
+      position: absolute;
+      inset: -48px;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        radial-gradient(56% 52% at 50% 44%, rgba(255, 255, 255, 0.78) 0%, rgba(235, 235, 234, 0) 70%),
+        radial-gradient(38% 36% at 72% 28%, rgba(30, 134, 172, 0.08) 0%, rgba(235, 235, 234, 0) 72%),
+        radial-gradient(36% 34% at 24% 72%, rgba(30, 134, 172, 0.06) 0%, rgba(235, 235, 234, 0) 72%);
+      will-change: transform;
+    }
+
+    #ring-atmo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(17, 17, 19, 0.032) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(17, 17, 19, 0.032) 1px, transparent 1px);
+      background-size: 84px 84px;
+      mask-image: radial-gradient(75% 70% at 50% 50%, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
+      -webkit-mask-image: radial-gradient(75% 70% at 50% 50%, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
+    }
+
+    .ring-hud-top {
+      position: absolute;
+      top: 22px;
+      left: 26px;
+      right: 26px;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .ring-hud-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    .ring-hud-bottom {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: rgba(17, 17, 19, 0.46);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* 3D Perspective Stage */
+    #ring-stage {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 820px;
+      perspective-origin: 50% 46%;
+      overflow: hidden;
+    }
+
+    #ring-cylinder {
+      position: relative;
+      width: 302px;
+      height: 170px;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .ring-card {
+      position: absolute;
+      inset: 0;
+      width: 302px;
+      height: 170px;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      cursor: pointer;
+      outline: none;
+      will-change: transform, opacity;
+    }
+
+    .ring-card-tilt {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.36s var(--ease);
+      will-change: transform;
+    }
+
+    .ring-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 11px;
+      overflow: hidden;
+      background: #dcdcd8;
+      border: 1px solid rgba(17, 17, 19, 0.12);
+      box-shadow: 0 18px 36px rgba(17, 17, 19, 0.12);
+      transition: border-color 0.28s var(--ease), box-shadow 0.32s var(--ease), opacity 0.36s var(--ease);
+      -webkit-box-reflect: below 10px linear-gradient(transparent 52%, rgba(17, 17, 19, 0.14));
+    }
+
+    .ring-card.is-dimmed .ring-card-inner {
+      opacity: 0.35;
+    }
+
+    .ring-card.is-hovered .ring-card-inner,
+    .ring-card:focus-visible .ring-card-inner {
+      border-color: var(--teal);
+      box-shadow:
+        0 24px 48px rgba(17, 17, 19, 0.18),
+        0 0 0 1px var(--teal),
+        0 0 28px rgba(30, 134, 172, 0.28);
+    }
+
+    .ring-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      transition: opacity 0.46s var(--ease), transform 0.6s var(--ease);
+    }
+
+    .ring-img-b {
+      opacity: 0;
+    }
+
+    .ring-card.is-hovered .ring-img-a {
+      transform: scale(1.045);
+    }
+
+    .ring-card.is-hovered .ring-img-b {
+      opacity: 1;
+      transform: scale(1.045);
+    }
+
+    .ring-chip {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: rgba(245, 245, 243, 0.88);
+      border: 1px solid rgba(17, 17, 19, 0.08);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: 0.03em;
+      pointer-events: none;
+      transition: opacity 0.24s var(--ease), transform 0.28s var(--ease);
+    }
+
+    body:not(.sw-gl) .ring-chip {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .ring-chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex-shrink: 0;
+    }
+
+    .ring-card.is-hovered .ring-chip {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    .ring-card-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 4;
+      padding: 18px 12px 10px;
+      background: linear-gradient(to top, rgba(17, 17, 19, 0.86) 0%, rgba(17, 17, 19, 0.45) 68%, rgba(17, 17, 19, 0) 100%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.28s var(--ease), transform 0.32s var(--ease);
+    }
+
+    .ring-card.is-hovered .ring-card-bar,
+    .ring-card:focus-visible .ring-card-bar {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ring-bar-cat {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #7cd0ee;
+      margin-bottom: 2px;
+    }
+
+    .ring-bar-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 14.5px;
+      line-height: 1.18;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 230px;
+    }
+
+    .ring-bar-arrow {
+      font-family: var(--sans);
+      font-size: 14px;
+      color: #ffffff;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(30, 134, 172, 0.9);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* =========================================================================
+       6. SECTION 4 — CONTACT INTERACTIF (#contact)
+    ========================================================================= */
+    #contact {
+      position: relative;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+    }
+
+    .contact-shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 110px 46px 90px;
+    }
+
+    .contact-kicker {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 30px;
+    }
+
+    .contact-sentence {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(26px, 3vw, 40px);
+      line-height: 1.58;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      max-width: 34ch;
+    }
+
+    .inline-field-wrap {
+      display: inline-flex;
+      align-items: baseline;
+      vertical-align: baseline;
+      position: relative;
+      margin: 0 3px;
+    }
+
+    .inline-input {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: inherit;
+      line-height: 1.25;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #8a8a86;
+      padding: 0 4px 2px;
+      min-width: 120px;
+      max-width: min(86vw, 560px);
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.22s var(--ease), color 0.22s var(--ease);
+    }
+
+    .inline-input::placeholder {
+      color: rgba(17, 17, 19, 0.42);
+      font-style: italic;
+    }
+
+    .inline-input:focus {
+      border-bottom-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .inline-measure {
+      position: absolute;
+      visibility: hidden;
+      white-space: pre;
+      pointer-events: none;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: inherit;
+      padding: 0 10px;
+    }
+
+    .timeline-radios {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      vertical-align: middle;
+      margin: 4px 4px 4px 6px;
+    }
+
+    .timeline-radio {
+      font-family: var(--sans);
+      font-size: clamp(13px, 1.1vw, 15px);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid rgba(17, 17, 19, 0.22);
+      border-radius: 999px;
+      padding: 7px 16px;
+      cursor: pointer;
+      transition: background 0.22s var(--ease), border-color 0.22s var(--ease), color 0.22s var(--ease), transform 0.22s var(--ease);
+    }
+
+    .timeline-radio:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .timeline-radio.is-selected {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #ffffff;
+    }
+
+    .contact-bottom {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(17, 17, 19, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+
+    .contact-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-wa-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      height: 50px;
+      padding: 0 26px;
+      border-radius: 999px;
+      background: var(--teal);
+      color: #ffffff;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      box-shadow: 0 12px 28px rgba(30, 134, 172, 0.24);
+      transition: background 0.22s var(--ease), box-shadow 0.22s var(--ease);
+      will-change: transform;
+    }
+
+    .btn-wa-primary:hover {
+      background: #187294;
+      box-shadow: 0 16px 34px rgba(30, 134, 172, 0.34);
+    }
+
+    .btn-brief-copy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 50px;
+      padding: 0 22px;
+      border-radius: 999px;
+      background: transparent;
+      border: 1px solid rgba(17, 17, 19, 0.2);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+    }
+
+    .btn-brief-copy:hover {
+      background: var(--pill);
+      border-color: var(--ink);
+    }
+
+    .btn-brief-copy.is-copied {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: rgba(30, 134, 172, 0.08);
+    }
+
+    .contact-coords {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+      text-align: right;
+    }
+
+    .contact-phone-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .contact-phone-row a:hover {
+      color: var(--teal);
+    }
+
+    .contact-phone-wa {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(30, 134, 172, 0.3);
+      transition: background 0.2s var(--ease), color 0.2s var(--ease);
+    }
+
+    .contact-phone-wa:hover {
+      background: var(--teal);
+      color: #ffffff;
+    }
+
+    .contact-place {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--mute);
+    }
+
+    .contact-pillars {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(17, 17, 19, 0.52);
+    }
+
+    /* =========================================================================
+       6B. PAGE PROJET COMPLÈTE (#view-project — SANS MODALE NI LIGHTBOX)
+    ========================================================================= */
+    #view-project {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      opacity: 0;
+      transition: opacity 0.4s var(--ease);
+    }
+
+    #view-project.is-visible {
+      opacity: 1;
+    }
+
+    .pv-topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 60;
+      height: 68px;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      background: rgba(245, 245, 243, 0.86);
+      border-bottom: 1px solid rgba(17, 17, 19, 0.08);
+    }
+
+    body:not(.sw-gl) .pv-topbar {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .pv-back-btn {
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 8px 14px 8px 10px;
+      cursor: pointer;
+      transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .pv-back-btn:hover {
+      background: var(--pill);
+      transform: translateX(-2px);
+    }
+
+    .pv-brand-center {
+      justify-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .pv-similar-btn {
+      justify-self: end;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 38px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: var(--teal);
+      color: #ffffff;
+      border: none;
+      font-family: var(--sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .pv-similar-btn:hover {
+      background: #187294;
+      transform: translateY(-1px);
+    }
+
+    .pv-header {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 120px 46px 48px;
+    }
+
+    .pv-index-cat {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 18px;
+    }
+
+    .pv-title {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(36px, 4.8vw, 68px);
+      line-height: 1.06;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      max-width: 18ch;
+      margin-bottom: 34px;
+    }
+
+    .pv-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+      padding: 22px 0;
+      border-top: 1px solid rgba(17, 17, 19, 0.1);
+      border-bottom: 1px solid rgba(17, 17, 19, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .pv-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .pv-meta-key {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    .pv-meta-val {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .pv-description {
+      font-family: var(--sans);
+      font-size: clamp(15.5px, 1.3vw, 18px);
+      line-height: 1.65;
+      color: rgba(17, 17, 19, 0.8);
+      max-width: 68ch;
+    }
+
+    .pv-gallery {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 8px 46px 88px;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .pv-row-diptych {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .pv-figure {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pv-img-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--pill);
+      border: 1px solid rgba(17, 17, 19, 0.08);
+    }
+
+    .pv-img-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s var(--ease);
+    }
+
+    .pv-figure:hover .pv-img-frame img {
+      transform: scale(1.018);
+    }
+
+    .pv-figcaption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--mute);
+    }
+
+    .pv-fig-num {
+      color: var(--teal);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .pv-next-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 46px 96px;
+    }
+
+    .pv-next-card {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-top: 1px solid rgba(17, 17, 19, 0.12);
+      padding: 44px 0 12px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      cursor: pointer;
+      color: var(--ink);
+      transition: opacity 0.22s var(--ease);
+    }
+
+    .pv-next-card:hover .pv-next-title {
+      color: var(--teal);
+      transform: translateX(6px);
+    }
+
+    .pv-next-kicker {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 10px;
+    }
+
+    .pv-next-title {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(28px, 3.6vw, 48px);
+      line-height: 1.12;
+      color: var(--ink);
+      transition: color 0.26s var(--ease), transform 0.34s var(--ease);
+    }
+
+    .pv-next-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      white-space: nowrap;
+      padding-bottom: 6px;
+    }
+
+    /* =========================================================================
+       7. FLOATING LIGHT DOCK (KR.ST SIGNATURE BOTTOM CAPSULE)
+    ========================================================================= */
+    #dock-wrap {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #dock-menu {
+      width: 248px;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 14px 36px rgba(17, 17, 19, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px) scale(0.96);
+      transform-origin: bottom center;
+      transition: opacity 0.22s var(--ease), transform 0.22s var(--ease);
+    }
+
+    body:not(.sw-gl) #dock-menu,
+    body:not(.sw-gl) #dock {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    #dock-menu.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .dock-menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--ink);
+      transition: background 0.16s var(--ease);
+    }
+
+    .dock-menu-item:hover { background: var(--pill); }
+
+    .dock-menu-sub {
+      padding: 4px 11px 6px;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 12.5px;
+      color: var(--mute);
+    }
+
+    #dock {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 30px rgba(17, 17, 19, 0.06);
+    }
+
+    .dock-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 36px;
+      padding: 0 11px 0 9px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.18s var(--ease);
+    }
+
+    .dock-brand:hover { background: var(--pill); }
+
+    .dock-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--line);
+      margin: 0 2px;
+    }
+
+    .dock-tab {
+      display: inline-flex;
+      align-items: center;
+      height: 36px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--mute);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.22s var(--ease), color 0.22s var(--ease);
+    }
+
+    .dock-tab:hover {
+      background: var(--pill);
+      color: var(--ink);
+    }
+
+    .dock-tab.is-active {
+      background: var(--pill);
+      color: var(--ink);
+    }
+
+    .dock-tab-label {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 17px;
+      line-height: 1;
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      margin-right: 0;
+      transition: max-width 0.34s var(--ease), opacity 0.24s var(--ease), margin-right 0.34s var(--ease);
+    }
+
+    .dock-tab.is-active .dock-tab-label {
+      max-width: 90px;
+      opacity: 1;
+      margin-right: 7px;
+    }
+
+    .dock-tab-num {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .dock-wa-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--teal);
+      background: rgba(30, 134, 172, 0.08);
+      white-space: nowrap;
+      transition: background 0.18s var(--ease), color 0.18s var(--ease);
+    }
+
+    .dock-wa-link:hover {
+      background: var(--teal);
+      color: #ffffff;
+    }
+
+    .dock-dot-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.18s var(--ease);
+    }
+
+    .dock-dot-btn:hover,
+    .dock-dot-btn[aria-expanded="true"] {
+      background: var(--pill);
+    }
+
+    .dock-dot-glyph {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ink);
+      transition: transform 0.22s var(--ease);
+    }
+
+    .dock-dot-btn[aria-expanded="true"] .dock-dot-glyph {
+      transform: scale(1.35);
+    }
+
+    /* =========================================================================
+       8. MINIMALIST FOOTER (<footer>)
+    ========================================================================= */
+    footer.site-footer {
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      padding: 72px 24px 110px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+
+    .footer-motto {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 16px;
+      color: var(--mute);
+      max-width: 62ch;
+      line-height: 1.5;
+    }
+
+    .footer-meta {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--mute);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .footer-meta a:hover { color: var(--ink); text-decoration: underline; }
+
+    /* =========================================================================
+       9. RESPONSIVE BREAKPOINTS
+    ========================================================================= */
+    @media (max-width: 1024px) {
+      .projets-editorial-head {
+        padding: 0 28px 34px;
+      }
+
+      .contact-shell {
+        padding: 88px 28px 72px;
+      }
+
+      .pv-header {
+        padding: 108px 28px 40px;
+      }
+
+      .pv-gallery {
+        padding: 8px 28px 72px;
+      }
+
+      .pv-next-wrap {
+        padding: 0 28px 76px;
+      }
+
+      .pv-meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-kicker { display: none; }
+
+      .hero-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      #hero-preview {
+        top: auto;
+        bottom: 76px;
+        left: 14px;
+        right: 14px;
+        width: auto;
+        transform: translateY(20px);
+      }
+
+      #hero-preview.is-open { transform: translateY(0); }
+
+      .cabinet-hint { font-size: 10px; }
+
+      .projets-editorial-head {
+        padding: 0 20px 28px;
+        gap: 24px;
+      }
+
+      .projets-metric {
+        padding: 2px 16px;
+      }
+
+      #ring-panel {
+        margin: 0 12px 20px;
+        border-radius: 18px;
+        height: 440px;
+      }
+
+      .ring-hud-top {
+        top: 16px;
+        left: 16px;
+        right: 16px;
+      }
+
+      .ring-hud-bottom {
+        font-size: 9.5px;
+      }
+
+      .contact-shell {
+        padding: 72px 20px 64px;
+      }
+
+      .contact-coords {
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .pv-topbar {
+        padding: 0 16px;
+        grid-template-columns: auto 1fr auto;
+      }
+
+      .pv-brand-center span {
+        display: none;
+      }
+
+      .pv-similar-btn {
+        padding: 0 12px;
+        font-size: 11.5px;
+      }
+
+      .pv-header {
+        padding: 96px 20px 32px;
+      }
+
+      .pv-gallery {
+        padding: 8px 20px 56px;
+        gap: 24px;
+      }
+
+      .pv-row-diptych {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .pv-img-frame {
+        border-radius: 12px;
+      }
+
+      .pv-next-wrap {
+        padding: 0 20px 64px;
+      }
+
+      .pv-next-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .dock-wa-link {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html, body { scroll-behavior: auto; }
+      * { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="paper-grain" aria-hidden="true"></div>
+
+  <main id="view-home">
+  <!-- =========================================================================
+       SECTION 1 — HERO AVEC SPHÈRE DE FIBONACCI 3D EN ARRIÈRE-PLAN (#hero)
+  ========================================================================= -->
+  <section id="hero" aria-label="Territoires 3D — MARC URBAN LAB">
+    <div id="hero-canvas-mount" aria-hidden="true"></div>
+
+    <!-- KR.ST Intro Wordmark + 001->100 Counter -->
+    <div id="hero-intro" aria-hidden="true">
+      <div class="intro-wordmark" id="intro-wordmark">MUL</div>
+      <div class="intro-counter tabular" id="intro-counter">001</div>
+    </div>
+
+    <!-- Hero Editorial Overlay -->
+    <div class="hero-chrome">
+      <div class="hero-top">
+        <a href="#hero" class="brand-lockup" aria-label="MARC URBAN LAB">
+          <!-- Monogramme géométrique MUL (traits condensés inspirés de TLQ) -->
+          <svg width="30" height="28" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" />
+            <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.1" stroke-linecap="round" />
+            <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.4" stroke-linecap="square" />
+          </svg>
+          <span class="brand-label">MARC URBAN LAB</span>
+        </a>
+        <div class="hero-kicker">URBANISME • ARCHITECTURE • SIG</div>
+      </div>
+
+      <div class="hero-bottom">
+        <div class="hero-editorial">
+          <h1 class="hero-headline">Pour un urbanisme durable et des territoires mieux pensés.</h1>
+          <p class="hero-sub">Études • Réalisation • Suivi de projets</p>
+        </div>
+        <a href="#cabinet" class="hero-scroll-cue">DÉFILER ↓</a>
+      </div>
+    </div>
+
+    <!-- Hover Caption -->
+    <div id="sphere-hover-caption" aria-hidden="true">
+      <span class="sphere-cap-title" id="sphere-cap-title"></span>
+      <span class="sphere-cap-meta" id="sphere-cap-meta"></span>
+    </div>
+
+    <!-- Focused Plane Multi-Angle Preview Sheet -->
+    <aside id="hero-preview" aria-label="Aperçu du projet sélectionné">
+      <div class="preview-top">
+        <div>
+          <div class="preview-cat" id="pv-cat"></div>
+          <h2 class="preview-title" id="pv-title"></h2>
+        </div>
+        <button type="button" class="light-close-btn" id="pv-close" aria-label="Fermer l'aperçu">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="preview-specs" id="pv-specs"></div>
+      <p class="preview-desc" id="pv-desc"></p>
+      <div class="preview-angles-label">
+        <span>Angles disponibles</span>
+        <span class="tabular" id="pv-angle-count"></span>
+      </div>
+      <div class="preview-thumbs" id="pv-thumbs"></div>
+      <div class="preview-actions">
+        <button type="button" class="btn-ink" id="pv-open-lb">Voir toutes les vues →</button>
+      </div>
+    </aside>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 2 — LE CABINET & RAIL MAGNÉTIQUE (#cabinet, 100vh)
+  ========================================================================= -->
+  <section id="cabinet" aria-label="Le Cabinet Marc Urban Lab — Services et Vision">
+    <div id="cabinet-canvas-mount" aria-hidden="true"></div>
+    <div class="cabinet-hint">Glisser horizontalement pour parcourir les expertises · Cliquer la tête 3D</div>
+    <a id="cabinet-wa-link" href="https://wa.me/237651763753?text=Bonjour%20Marc%20Urban%20Lab%2C%20je%20souhaite%20discuter%20d%27un%20projet." target="_blank" rel="noopener noreferrer" hidden></a>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 3 — ANNEAU CYLINDRIQUE 3D CONTINU (#projets)
+  ========================================================================= -->
+  <section id="projets" aria-label="Projets et Études de Cas">
+    <div class="projets-editorial-head">
+      <div class="projets-intro-col">
+        <div class="projets-kicker">03 // ARCHIVES &amp; RÉALISATIONS</div>
+        <h2 class="projets-editorial-sentence">
+          Explorez nos réalisations en
+          <button type="button" class="filter-kw" data-filter-cat="urbanisme">urbanisme<sup class="tabular">01</sup></button>,
+          <button type="button" class="filter-kw" data-filter-cat="etude">étude urbaine<sup class="tabular">02</sup></button>,
+          <button type="button" class="filter-kw" data-filter-cat="architecture">architecture 3D<sup class="tabular">03</sup></button>
+          et
+          <button type="button" class="filter-kw" data-filter-cat="sig">cartographie SIG<sup class="tabular">04</sup></button>.
+        </h2>
+        <button type="button" class="projets-filter-reset" id="ring-filter-reset" hidden>
+          <span>× Tout afficher</span>
+        </button>
+      </div>
+
+      <div class="projets-metrics" aria-label="Indicateurs du cabinet">
+        <div class="projets-metric">
+          <span class="projets-metric-val tabular">45+</span>
+          <span class="projets-metric-lbl">Rendus 3D</span>
+        </div>
+        <div class="projets-metric">
+          <span class="projets-metric-val tabular">06</span>
+          <span class="projets-metric-lbl">Expertises</span>
+        </div>
+        <div class="projets-metric">
+          <span class="projets-metric-val tabular">100%</span>
+          <span class="projets-metric-lbl">Conformité</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="ring-panel" aria-label="Anneau 3D interactif des projets Marc Urban Lab">
+      <div id="ring-atmo" aria-hidden="true"></div>
+      <div class="ring-hud-top" aria-hidden="true">
+        <span class="ring-hud-tag tabular">CYLINDRE 3D // 16 PLANS</span>
+        <span class="ring-hud-tag tabular" id="ring-active-filter">TOUTES LES EXPERTISES</span>
+      </div>
+      <div id="ring-stage">
+        <div id="ring-cylinder"></div>
+      </div>
+      <div class="ring-hud-bottom" aria-hidden="true">
+        Glisser ou défiler horizontalement · Cliquer un projet pour ouvrir l'étude complète
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 4 — CONTACT INTERACTIF (#contact)
+  ========================================================================= -->
+  <section id="contact" aria-label="Démarrer une étude avec Marc Urban Lab">
+    <div class="contact-shell">
+      <div class="contact-kicker">CONTACT // DÉMARRER UNE ÉTUDE</div>
+
+      <div class="contact-sentence">
+        Bonjour Marc Urban Lab, je souhaite lancer
+        <span class="inline-field-wrap">
+          <span class="inline-measure" aria-hidden="true"></span>
+          <input
+            type="text"
+            id="brief-type"
+            class="inline-input"
+            value="un permis de bâtir / lotissement"
+            placeholder="un permis de bâtir / lotissement"
+            aria-label="Type de projet souhaité"
+          />
+        </span>
+        pour un terrain situé à
+        <span class="inline-field-wrap">
+          <span class="inline-measure" aria-hidden="true"></span>
+          <input
+            type="text"
+            id="brief-location"
+            class="inline-input"
+            value="Douala, Bonapriso"
+            placeholder="Douala, Bonapriso"
+            aria-label="Localisation du terrain"
+          />
+        </span>,
+        avec un démarrage
+        <span class="timeline-radios" role="radiogroup" aria-label="Horizon de démarrage">
+          <button type="button" class="timeline-radio is-selected" role="radio" aria-checked="true" data-timeline="immédiat">immédiat</button>
+          <button type="button" class="timeline-radio" role="radio" aria-checked="false" data-timeline="d'ici 1 mois">d'ici 1 mois</button>
+          <button type="button" class="timeline-radio" role="radio" aria-checked="false" data-timeline="à planifier">à planifier</button>
+        </span>.
+      </div>
+
+      <div class="contact-bottom">
+        <div class="contact-actions">
+          <a
+            id="brief-wa-btn"
+            href="https://wa.me/237651763753"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-wa-primary"
+          >
+            <span>Envoyer sur WhatsApp</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <button type="button" id="brief-copy-btn" class="btn-brief-copy">
+            Copier le brief
+          </button>
+        </div>
+
+        <div class="contact-coords">
+          <div class="contact-phone-row tabular">
+            <a href="tel:+237651763753">+237 651 763 753</a>
+            <a href="https://wa.me/237651763753" target="_blank" rel="noopener noreferrer" class="contact-phone-wa">WhatsApp ↗</a>
+          </div>
+          <div class="contact-place">Douala, Cameroun</div>
+          <div class="contact-pillars">Études • Réalisation • Suivi</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       FOOTER MINIMALISTE
+  ========================================================================= -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-brand">
+      <svg width="26" height="24" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" />
+        <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.1" stroke-linecap="round" />
+        <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.4" stroke-linecap="square" />
+      </svg>
+      <span>Marc Urban Lab</span>
+    </div>
+    <p class="footer-motto">
+      Aménager • Bâtir • Préserver — Pour un urbanisme durable et des territoires mieux pensés
+    </p>
+    <div class="footer-meta tabular">
+      <a href="tel:+237651763753">+237 651 763 753</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://wa.me/237651763753" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <span aria-hidden="true">·</span>
+      <span>Douala, Cameroun</span>
+      <span aria-hidden="true">·</span>
+      <span>© 2026 Marc Urban Lab</span>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       DOCK FLOTTANT LIGHT (SYNCHRONISÉ AU SCROLL VIA SCROLLTRIGGER)
+  ========================================================================= -->
+  <div id="dock-wrap">
+    <div id="dock-menu" role="menu" aria-hidden="true">
+      <div class="dock-menu-sub">Marc Urban Lab · Douala</div>
+      <a href="https://wa.me/237651763753?text=Bonjour%20Marc%20Urban%20Lab%2C%20je%20souhaite%20discuter%20d%27un%20projet." target="_blank" rel="noopener noreferrer" class="dock-menu-item" role="menuitem">
+        <span>WhatsApp : +237 651 763 753</span>
+        <span aria-hidden="true">→</span>
+      </a>
+      <a href="tel:+237651763753" class="dock-menu-item" role="menuitem">
+        <span>Appeler le cabinet</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <nav id="dock" aria-label="Navigation par section">
+      <button type="button" class="dock-brand" id="dock-home-btn" aria-label="Remonter en haut">
+        <svg width="20" height="19" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="miter" />
+          <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.4" stroke-linecap="round" />
+          <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.7" stroke-linecap="square" />
+        </svg>
+        <span>MUL</span>
+      </button>
+
+      <span class="dock-sep" aria-hidden="true"></span>
+
+      <button type="button" class="dock-tab is-active" data-dock-target="hero">
+        <span class="dock-tab-label">Sphère</span>
+        <span class="dock-tab-num tabular">1</span>
+      </button>
+      <button type="button" class="dock-tab" data-dock-target="cabinet">
+        <span class="dock-tab-label">Cabinet</span>
+        <span class="dock-tab-num tabular">2</span>
+      </button>
+      <button type="button" class="dock-tab" data-dock-target="projets">
+        <span class="dock-tab-label">Projets</span>
+        <span class="dock-tab-num tabular">3</span>
+      </button>
+      <button type="button" class="dock-tab" data-dock-target="contact">
+        <span class="dock-tab-label">Contact</span>
+        <span class="dock-tab-num tabular">4</span>
+      </button>
+
+      <span class="dock-sep" aria-hidden="true"></span>
+
+      <a
+        href="https://wa.me/237651763753?text=Bonjour%20Marc%20Urban%20Lab%2C%20je%20souhaite%20d%C3%A9marrer%20une%20%C3%A9tude."
+        target="_blank"
+        rel="noopener noreferrer"
+        class="dock-wa-link"
+      >
+        WhatsApp ↗
+      </a>
+
+      <button type="button" class="dock-dot-btn" id="dock-dot-btn" aria-label="Ouvrir le contact rapide" aria-expanded="false">
+        <span class="dock-dot-glyph" aria-hidden="true"></span>
+      </button>
+    </nav>
+  </div>
+  </main>
+
+  <!-- =========================================================================
+       VUE PROJET PLEINE PAGE (#view-project — ROUTAGE #projet/<slug>)
+  ========================================================================= -->
+  <section id="view-project" hidden aria-label="Étude de cas complète">
+    <header class="pv-topbar">
+      <button type="button" class="pv-back-btn" id="pv-back-btn">
+        <span aria-hidden="true">←</span>
+        <span>Retour aux projets</span>
+      </button>
+
+      <button type="button" class="pv-brand-center" id="pv-brand-btn" aria-label="Retour à l'accueil Marc Urban Lab">
+        <svg width="22" height="20" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" />
+          <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.2" stroke-linecap="round" />
+          <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.5" stroke-linecap="square" />
+        </svg>
+        <span>MARC URBAN LAB</span>
+      </button>
+
+      <button type="button" class="pv-similar-btn" id="pv-similar-btn">
+        <span>Étudier un projet similaire</span>
+        <span aria-hidden="true">↗</span>
+      </button>
+    </header>
+
+    <article class="pv-header">
+      <div class="pv-index-cat tabular" id="pv-page-index-cat">N° 01 // URBANISME</div>
+      <h1 class="pv-title" id="pv-page-title"></h1>
+
+      <div class="pv-meta-grid">
+        <div class="pv-meta-item">
+          <span class="pv-meta-key">Lieu</span>
+          <span class="pv-meta-val" id="pv-page-location"></span>
+        </div>
+        <div class="pv-meta-item">
+          <span class="pv-meta-key">Superficie</span>
+          <span class="pv-meta-val tabular" id="pv-page-surface"></span>
+        </div>
+        <div class="pv-meta-item">
+          <span class="pv-meta-key">Année</span>
+          <span class="pv-meta-val tabular" id="pv-page-year"></span>
+        </div>
+        <div class="pv-meta-item">
+          <span class="pv-meta-key">Nombre de vues</span>
+          <span class="pv-meta-val tabular" id="pv-page-count"></span>
+        </div>
+      </div>
+
+      <p class="pv-description" id="pv-page-desc"></p>
+    </article>
+
+    <div class="pv-gallery" id="pv-page-gallery"></div>
+
+    <div class="pv-next-wrap">
+      <button type="button" class="pv-next-card" id="pv-next-btn">
+        <div>
+          <div class="pv-next-kicker tabular" id="pv-next-kicker">ÉTUDE SUIVANTE</div>
+          <div class="pv-next-title" id="pv-next-title"></div>
+        </div>
+        <span class="pv-next-cta">Projet suivant →</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       MODULE PRINCIPAL (Three.js 0.160.0 + GSAP 3.12.5 + ScrollTrigger)
+  ========================================================================= -->
+  <script type="module">
+    const THREE = await import(/* @vite-ignore */ "three");
+    const { RoomEnvironment } = await import(/* @vite-ignore */ "three/addons/environments/RoomEnvironment.js");
+
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+
+    const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const IS_TOUCH = window.matchMedia("(pointer: coarse)").matches;
+
+    // Software WebGL Guard (rendering cost only — identical scene content)
+    const IS_SOFTWARE_GL = (() => {
+      try {
+        const c = document.createElement("canvas");
+        const gl = c.getContext("webgl2") || c.getContext("webgl");
+        if (!gl) return true;
+        const ext = gl.getExtension("WEBGL_debug_renderer_info");
+        const gpu = String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+        return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
+      } catch {
+        return false;
+      }
+    })();
+
+    if (IS_SOFTWARE_GL) document.body.classList.add("sw-gl");
+
+    const DPR = () => (IS_SOFTWARE_GL ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+
+    function afterDraw(renderer, cb, storeId) {
+      const gl = renderer.getContext();
+      if (gl && typeof gl.fenceSync === "function") {
+        const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+        gl.flush();
+        const poll = () => {
+          const state = sync && gl.getSyncParameter(sync, gl.SYNC_STATUS);
+          if (state === gl.UNSIGNALED) {
+            storeId(window.setTimeout(poll, 5));
+          } else {
+            if (sync) gl.deleteSync(sync);
+            storeId(window.setTimeout(cb, 80));
+          }
+        };
+        storeId(window.setTimeout(poll, 5));
+      } else {
+        storeId(window.setTimeout(cb, 80));
+      }
+    }
+
+    // =========================================================================
+    // 1. PLANCHES SIG ARCHITECTURALES (Light Cartographic Plates 16:9)
+    // =========================================================================
+    function createLightGisPlate(variant) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1280;
+      canvas.height = 720;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#ecece8";
+      ctx.fillRect(0, 0, 1280, 720);
+
+      // Architectural coordinate grid
+      ctx.strokeStyle = "rgba(17, 17, 19, 0.06)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= 1280; x += 64) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 720); ctx.stroke();
+      }
+      for (let y = 0; y <= 720; y += 64) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1280, y); ctx.stroke();
+      }
+
+      // Topographic contour isolines
+      for (let i = 0; i < 15; i++) {
+        ctx.beginPath();
+        ctx.strokeStyle = i % 3 === 0 ? "rgba(22, 33, 255, 0.28)" : "rgba(17, 17, 19, 0.14)";
+        ctx.lineWidth = i % 3 === 0 ? 1.5 : 1;
+        const baseY = 80 + i * 42;
+        for (let x = 0; x <= 1280; x += 28) {
+          const y = baseY + Math.sin(x * 0.005 + i * 0.55 + variant * 1.1) * 34 + Math.cos(x * 0.01 - variant) * 12;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // Land-use zoning parcels
+      const zones = [
+        ["rgba(22, 33, 255, 0.10)", "#1621ff", "Z-U1 · HABITAT"],
+        ["rgba(17, 17, 19, 0.08)", "#111113", "Z-U2 · PÔLE ÉCONOMIQUE"],
+        ["rgba(15, 118, 110, 0.11)", "#0f766e", "Z-N · CORRIDOR VERT"],
+      ];
+      zones.forEach(([fill, stroke, label], idx) => {
+        const ox = 140 + idx * 330 + ((variant * 43) % 60);
+        const oy = 135 + ((idx * 105 + variant * 52) % 200);
+        ctx.beginPath();
+        ctx.moveTo(ox, oy);
+        ctx.lineTo(ox + 260, oy - 24);
+        ctx.lineTo(ox + 292, oy + 174);
+        ctx.lineTo(ox + 34, oy + 198);
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(17, 17, 19, 0.18)";
+        ctx.lineWidth = 1;
+        for (let s = 1; s < 4; s++) {
+          ctx.beginPath();
+          ctx.moveTo(ox + s * 65, oy - s * 6);
+          ctx.lineTo(ox + 34 + s * 65, oy + 196 - s * 5);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#111113";
+        ctx.font = "600 13px monospace";
+        ctx.fillText(label, ox + 20, oy + 30);
+      });
+
+      // Primary arterial axis
+      ctx.beginPath();
+      ctx.strokeStyle = "#111113";
+      ctx.lineWidth = 3;
+      ctx.moveTo(0, 515 - variant * 32);
+      ctx.bezierCurveTo(420, 435, 790, 265, 1280, 295 + variant * 24);
+      ctx.stroke();
+
+      // Cartouche
+      ctx.fillStyle = "rgba(245, 245, 243, 0.92)";
+      ctx.fillRect(42, 614, 1196, 64);
+      ctx.strokeStyle = "rgba(17, 17, 19, 0.22)";
+      ctx.strokeRect(42, 614, 1196, 64);
+
+      const titles = [
+        "ATLAS SIG · OCCUPATION DES SOLS & ZONAGE PLU",
+        "MODÈLE NUMÉRIQUE DE TERRAIN · COURBES 0.5M",
+        "CADASTRE NUMÉRIQUE · BASE GÉOSPATIALE FONCIÈRE",
+        "ANALYSE HYDROLOGIQUE · DRAINAGE & ZONES TAMPONS",
+        "SCHÉMA DIRECTEUR VRD · CONNECTIVITÉ MÉTROPOLITAINE",
+      ];
+      ctx.fillStyle = "#111113";
+      ctx.font = "600 15px monospace";
+      ctx.fillText(titles[variant % titles.length], 64, 644);
+      ctx.fillStyle = "#6b6b68";
+      ctx.font = "400 12.5px monospace";
+      ctx.fillText("MARC URBAN LAB · PROJECTION WGS 84 / UTM ZONE 32N · ÉCHELLE 1:2500", 64, 666);
+
+      return canvas.toDataURL("image/png");
+    }
+
+    const GIS_PLATES = [0, 1, 2, 3, 4].map(createLightGisPlate);
+
+    // =========================================================================
+    // 2. DONNÉES PROJETS & MULTI-ANGLES (8 Projets · 45 Emplacements 16:9)
+    //    Remplacez simplement chaque URL par vos fichiers locaux (.webp / .jpg)
+    // =========================================================================
+    const PROJECTS = [
+      {
+        id: "esplanade-parc-exposition",
+        title: "Aménagement Esplanade & Parc d'Exposition",
+        category: "Urbanisme",
+        year: "2026",
+        location: "Douala",
+        surface: "45 000 m²",
+        description:
+          "Masterplan urbain 3D d'un parc d'exposition polyvalent intégrant scène événementielle, galeries marchandes modulaires, pôle restauration, aire ludique familiale et parkings hiérarchisés.",
+        cover: "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.46_411ed62c.jpeg",
+        angles: [
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.46_411ed62c.jpeg",      // Slot 01/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.47_4b501452.jpeg",      // Slot 02/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.45_2107ba02.jpeg",      // Slot 03/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.48_c44179a0.jpeg",      // Slot 04/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.49__1__ed1f5934.jpeg", // Slot 05/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.49_62090964.jpeg",      // Slot 06/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.45__1__28d32f75.jpeg", // Slot 07/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.46__1__f9591bbb.jpeg", // Slot 08/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.50_add5b739.jpeg",      // Slot 09/45
+        ],
+      },
+      {
+        id: "lotissement-les-palmiers",
+        title: "Lotissement Résidentiel Les Palmiers",
+        category: "Étude Urbaine",
+        year: "2026",
+        location: "Bonapriso",
+        surface: "12 Ha",
+        description:
+          "Conception complète de lotissement résidentiel : découpage parcellaire optimisé, trame VRD apaisée, corridors verts drainants et cahier architectural contemporain.",
+        cover: "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.59__1__b36270a0.jpeg",
+        angles: [
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.59__1__b36270a0.jpeg", // Slot 10/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.59__2__35147b6e.jpeg", // Slot 11/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.58__4__79be2efa.jpeg", // Slot 12/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.59_252bb2df.jpeg",      // Slot 13/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.58__1__4464b06d.jpeg", // Slot 14/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.58__3__ab15b245.jpeg", // Slot 15/45
+        ],
+      },
+      {
+        id: "atlas-sig-cartographie-fonciere",
+        title: "Atlas SIG & Cartographie Foncière",
+        category: "Cartographie & SIG",
+        year: "2026",
+        location: "Littoral",
+        surface: "Métropole",
+        description:
+          "Structuration d'une base de données géospatiales multi-couches : cartographie thématique, modélisation altimétrique, occupation des sols et analyse multicritère.",
+        cover: GIS_PLATES[0],
+        angles: [
+          GIS_PLATES[0], // Slot 16/45
+          GIS_PLATES[1], // Slot 17/45
+          GIS_PLATES[2], // Slot 18/45
+          GIS_PLATES[3], // Slot 19/45
+          GIS_PLATES[4], // Slot 20/45
+        ],
+      },
+      {
+        id: "residence-horizon-r5",
+        title: "Résidence Horizon R+5",
+        category: "Architecture 3D",
+        year: "2026",
+        location: "Akwa",
+        surface: "3 800 m²",
+        description:
+          "Étude architecturale 2D/3D et modélisation de façades bioclimatiques en travertin, pierre naturelle et grandes verrières verticales pour un programme résidentiel de standing.",
+        cover: "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.51_8413b559.jpeg",
+        angles: [
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.51_8413b559.jpeg",      // Slot 21/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.56__4__34eb147d.jpeg", // Slot 22/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.57_ac2de53f.jpeg",      // Slot 23/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.58__2__a27fdcd2.jpeg", // Slot 24/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.59__1__b36270a0.jpeg", // Slot 25/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.59__2__35147b6e.jpeg", // Slot 26/45
+        ],
+      },
+      {
+        id: "eco-quartier-cite-des-berges",
+        title: "Éco-Quartier Cité des Berges",
+        category: "Urbanisme",
+        year: "2025",
+        location: "Douala",
+        surface: "28 Ha",
+        description:
+          "Schéma d'aménagement durable articulant axes piétons ombragés, polarités commerciales de proximité, gestion écologique des eaux pluviales et phasage d'investissement.",
+        cover: "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.47_4b501452.jpeg",
+        angles: [
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.47_4b501452.jpeg",      // Slot 27/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.48_c44179a0.jpeg",      // Slot 28/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.46__1__f9591bbb.jpeg", // Slot 29/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.45_2107ba02.jpeg",      // Slot 30/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.49_62090964.jpeg",      // Slot 31/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.50_add5b739.jpeg",      // Slot 32/45
+        ],
+      },
+      {
+        id: "complexe-immobilier-nova",
+        title: "Complexe Immobilier Nova",
+        category: "Gestion Immobilière",
+        year: "2025",
+        location: "Bonanjo",
+        surface: "6 400 m²",
+        description:
+          "Accompagnement complet de la conception et l'obtention du permis de bâtir jusqu'au suivi du gros œuvre, contrôle qualité et valorisation d'actif immobilier.",
+        cover: "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.56__4__34eb147d.jpeg",
+        angles: [
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.56__4__34eb147d.jpeg", // Slot 33/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.57_ac2de53f.jpeg",      // Slot 34/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.56__1__bf941733.jpeg", // Slot 35/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.56_cf837376.jpeg",      // Slot 36/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.57__1__b3df2cb3.jpeg", // Slot 37/45
+        ],
+      },
+      {
+        id: "villa-contemporaine-k04",
+        title: "Villa Contemporaine K-04",
+        category: "Architecture 3D",
+        year: "2025",
+        location: "Logpom",
+        surface: "850 m²",
+        description:
+          "Villa duplex contemporaine sur terrain en pente combinant brise-soleil minéraux, double sous-sol valorisé, dossiers d'exécution 2D/3D et instruction du permis de bâtir.",
+        cover: "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.58__1__4464b06d.jpeg",
+        angles: [
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.58__1__4464b06d.jpeg", // Slot 38/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.58_4359fff0.jpeg",      // Slot 39/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.57__2__d471e5a9.jpeg", // Slot 40/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.57__3__459e667d.jpeg", // Slot 41/45
+        ],
+      },
+      {
+        id: "restructuration-axe-nord",
+        title: "Restructuration Axe Nord",
+        category: "Faisabilité",
+        year: "2025",
+        location: "Douala",
+        surface: "18 Ha",
+        description:
+          "Étude de faisabilité technique, économique, environnementale et sociale incluant diagnostic des flux, insertion bâtie et plan d'investissement phasé.",
+        cover: "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.55__3__0be209d7.jpeg",
+        angles: [
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.55__3__0be209d7.jpeg", // Slot 42/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.56__2__bceae89c.jpeg", // Slot 43/45
+          "/assets/aistudio/WhatsApp_Image_2026-11-23_at_15.32.56__3__0cd1dacd.jpeg", // Slot 44/45
+          GIS_PLATES[4],                                                              // Slot 45/45
+        ],
+      },
+    ];
+
+    const PROJECT_BY_ID = Object.fromEntries(PROJECTS.map((p) => [p.id, p]));
+
+    const SPHERE_NODES = [
+      { projectId: "esplanade-parc-exposition", angleIndex: 0 },
+      { projectId: "lotissement-les-palmiers", angleIndex: 0 },
+      { projectId: "atlas-sig-cartographie-fonciere", angleIndex: 0 },
+      { projectId: "residence-horizon-r5", angleIndex: 0 },
+      { projectId: "esplanade-parc-exposition", angleIndex: 1 },
+      { projectId: "villa-contemporaine-k04", angleIndex: 0 },
+      { projectId: "complexe-immobilier-nova", angleIndex: 0 },
+      { projectId: "restructuration-axe-nord", angleIndex: 0 },
+      { projectId: "esplanade-parc-exposition", angleIndex: 2 },
+      { projectId: "lotissement-les-palmiers", angleIndex: 2 },
+      { projectId: "atlas-sig-cartographie-fonciere", angleIndex: 1 },
+      { projectId: "esplanade-parc-exposition", angleIndex: 3 },
+      { projectId: "villa-contemporaine-k04", angleIndex: 1 },
+      { projectId: "eco-quartier-cite-des-berges", angleIndex: 1 },
+      { projectId: "esplanade-parc-exposition", angleIndex: 4 },
+      { projectId: "lotissement-les-palmiers", angleIndex: 1 },
+      { projectId: "complexe-immobilier-nova", angleIndex: 2 },
+      { projectId: "esplanade-parc-exposition", angleIndex: 7 },
+      { projectId: "villa-contemporaine-k04", angleIndex: 2 },
+      { projectId: "esplanade-parc-exposition", angleIndex: 8 },
+    ];
+
+    // =========================================================================
+    // 3. SHARED TEXTURE CACHE (Per-Renderer safe)
+    // =========================================================================
+    function createLightFallbackImage() {
+      const c = document.createElement("canvas");
+      c.width = 1024;
+      c.height = 576;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#e8e8e5";
+      ctx.fillRect(0, 0, 1024, 576);
+      ctx.strokeStyle = "#dcdcd8";
+      for (let x = 0; x <= 1024; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 576); ctx.stroke(); }
+      for (let y = 0; y <= 576; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke(); }
+      return c;
+    }
+    const FALLBACK_CANVAS = createLightFallbackImage();
+    const imagePool = new Map();
+
+    function coverCropTo16x9(img) {
+      const w = 1024;
+      const h = 576;
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext("2d");
+      const iw = img.naturalWidth || img.width || w;
+      const ih = img.naturalHeight || img.height || h;
+      const targetAspect = w / h;
+      const srcAspect = iw / ih;
+      let sx = 0, sy = 0, sw = iw, sh = ih;
+      if (srcAspect > targetAspect) {
+        sw = ih * targetAspect;
+        sx = (iw - sw) * 0.5;
+      } else {
+        sh = iw / targetAspect;
+        sy = (ih - sh) * 0.5;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+      return c;
+    }
+
+    function isCrossOriginUrl(url) {
+      if (!url || url.startsWith("data:") || url.startsWith("/") || url.startsWith("./") || url.startsWith("../")) {
+        return false;
+      }
+      try {
+        return new URL(url, window.location.href).origin !== window.location.origin;
+      } catch {
+        return false;
+      }
+    }
+
+    function loadSharedImage(url, cb) {
+      if (imagePool.has(url)) {
+        const rec = imagePool.get(url);
+        if (rec.loaded) cb(rec.canvas);
+        else rec.listeners.push(cb);
+        return;
+      }
+      const img = new Image();
+      if (isCrossOriginUrl(url)) {
+        img.crossOrigin = "anonymous";
+      }
+      const rec = { canvas: FALLBACK_CANVAS, loaded: false, listeners: [cb] };
+      imagePool.set(url, rec);
+      img.onload = () => {
+        try {
+          rec.canvas = coverCropTo16x9(img);
+        } catch {
+          rec.canvas = img;
+        }
+        rec.loaded = true;
+        rec.listeners.forEach((fn) => fn(rec.canvas));
+        rec.listeners.length = 0;
+      };
+      img.onerror = () => {
+        rec.canvas = FALLBACK_CANVAS;
+        rec.loaded = true;
+        rec.listeners.forEach((fn) => fn(FALLBACK_CANVAS));
+        rec.listeners.length = 0;
+      };
+      img.src = url;
+    }
+
+    function buildFreshTexture(sourceCanvas, renderer) {
+      const tex = new THREE.CanvasTexture(sourceCanvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
+      tex.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function createTextureForRenderer(url, renderer, onReady) {
+      let resolvedTex = null;
+      let placeholder = null;
+
+      loadSharedImage(url, (croppedCanvas) => {
+        const realTex = buildFreshTexture(croppedCanvas, renderer);
+        resolvedTex = realTex;
+        if (onReady) onReady(realTex);
+        if (placeholder) {
+          placeholder.dispose();
+          placeholder = null;
+        }
+      });
+
+      if (resolvedTex) {
+        return resolvedTex;
+      }
+      placeholder = buildFreshTexture(FALLBACK_CANVAS, renderer);
+      return placeholder;
+    }
+
+    // =========================================================================
+    // 4. DOCK FLOTTANT LIGHT (SCROLLTRIGGER 4 ONGLETS) & PAGE PROJET (#view-project)
+    // =========================================================================
+    const dockTabs = Array.from(document.querySelectorAll("[data-dock-target]"));
+    const dockDotBtn = document.getElementById("dock-dot-btn");
+    const dockMenu = document.getElementById("dock-menu");
+
+    function setActiveDockTab(id) {
+      dockTabs.forEach((t) => t.classList.toggle("is-active", t.dataset.dockTarget === id));
+    }
+
+    function closeDockMenu() {
+      dockMenu.classList.remove("is-open");
+      dockMenu.setAttribute("aria-hidden", "true");
+      dockDotBtn.setAttribute("aria-expanded", "false");
+    }
+
+    dockDotBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const next = !dockMenu.classList.contains("is-open");
+      dockMenu.classList.toggle("is-open", next);
+      dockMenu.setAttribute("aria-hidden", String(!next));
+      dockDotBtn.setAttribute("aria-expanded", String(next));
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#dock-wrap")) closeDockMenu();
+    });
+
+    document.getElementById("dock-home-btn").addEventListener("click", () => {
+      closeDockMenu();
+      document.getElementById("hero").scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth" });
+    });
+
+    dockTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        closeDockMenu();
+        const target = document.getElementById(tab.dataset.dockTarget);
+        if (target) target.scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth" });
+      });
+    });
+
+    // Synchronize all 4 Dock tabs via GSAP ScrollTrigger
+    ["hero", "cabinet", "projets", "contact"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 48%",
+        end: "bottom 48%",
+        onEnter: () => setActiveDockTab(id),
+        onEnterBack: () => setActiveDockTab(id),
+      });
+    });
+
+    // Full-Page Project View Router (#view-project + #projet/<slug>)
+    const viewHome = document.getElementById("view-home");
+    const viewProject = document.getElementById("view-project");
+    const pvBackBtn = document.getElementById("pv-back-btn");
+    const pvBrandBtn = document.getElementById("pv-brand-btn");
+    const pvSimilarBtn = document.getElementById("pv-similar-btn");
+    const pvPageIndexCat = document.getElementById("pv-page-index-cat");
+    const pvPageTitle = document.getElementById("pv-page-title");
+    const pvPageLocation = document.getElementById("pv-page-location");
+    const pvPageSurface = document.getElementById("pv-page-surface");
+    const pvPageYear = document.getElementById("pv-page-year");
+    const pvPageCount = document.getElementById("pv-page-count");
+    const pvPageDesc = document.getElementById("pv-page-desc");
+    const pvPageGallery = document.getElementById("pv-page-gallery");
+    const pvNextBtn = document.getElementById("pv-next-btn");
+    const pvNextKicker = document.getElementById("pv-next-kicker");
+    const pvNextTitle = document.getElementById("pv-next-title");
+
+    let activeProjectId = null;
+    let isViewTransitioning = false;
+    let contactBriefApi = null;
+
+    const TECHNICAL_CAPTIONS = {
+      Urbanisme: [
+        "Vue axonométrique d'ensemble & organisation des polarités",
+        "Perspective d'insertion urbaine & traitement de l'esplanade",
+        "Séquence d'accès principal & flux piétons-véhicules",
+        "Aménagement paysager, trame verte & espaces publics",
+        "Volumétrie des pavillons & galeries modulaires",
+        "Vue aérienne rasante sur le plan masse 3D",
+        "Cadrage d'ambiance & articulation des circulations",
+        "Perspective secondaire sur les équipements d'accompagnement",
+        "Vue panoramique de synthèse territoriale",
+      ],
+      "Étude Urbaine": [
+        "Plan masse résidentiel & découpage parcellaire optimisé",
+        "Trame VRD apaisée & profils de voiries plantées",
+        "Perspective d'îlot & typologie architecturale contemporaine",
+        "Corridors verts drainants & gestion des eaux pluviales",
+        "Insertion bâtie & rapport au domaine public",
+        "Vue d'ensemble du lotissement & orientations bioclimatiques",
+      ],
+      "Cartographie & SIG": [
+        "Planche SIG multi-couches — Occupation des sols & voirie",
+        "Modélisation altimétrique & courbes de niveau géoréférencées",
+        "Analyse multicritère d'aptitude à l'urbanisation",
+        "Cartographie foncière & synthèse parcellaire métropolitaine",
+        "Schéma directeur d'infrastructures & bassin versant",
+      ],
+      "Architecture 3D": [
+        "Élévation principale 3D & composition des façades bioclimatiques",
+        "Perspective d'angle — Matérialité minérale & brise-soleil",
+        "Séquence d'entrée, soubassement & traitement des accès",
+        "Vue latérale & volumétrie des niveaux supérieurs",
+        "Intégration sur parcelle & aménagement des abords",
+        "Détail architectural des balcons & percements verticaux",
+      ],
+      "Gestion Immobilière": [
+        "Perspective 3D du complexe — Valorisation de l'actif immobilier",
+        "Vue de façade sur axe principal & rez-de-chaussée actif",
+        "Contrôle architectural & conformité du gros œuvre",
+        "Séquence d'accès résidentiel & stationnements hiérarchisés",
+        "Vue d'ensemble & insertion dans le tissu urbain",
+      ],
+      Faisabilité: [
+        "Diagnostic territorial & restructuration de l'axe structurant",
+        "Scénario d'insertion bâtie & densification maîtrisée",
+        "Phasage opérationnel & requalification des emprises",
+        "Planche SIG de synthèse — Flux, réseaux et foncier",
+      ],
+    };
+
+    function getAngleCaption(project, idx) {
+      const list = TECHNICAL_CAPTIONS[project.category] || TECHNICAL_CAPTIONS.Urbanisme;
+      return list[idx % list.length];
+    }
+
+    function buildProjectFigure(project, url, idx, total) {
+      const fig = document.createElement("figure");
+      fig.className = "pv-figure";
+
+      const frame = document.createElement("div");
+      frame.className = "pv-img-frame";
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = `${project.title} — Vue ${idx + 1}`;
+      img.loading = idx === 0 ? "eager" : "lazy";
+      img.decoding = "async";
+      img.referrerPolicy = "no-referrer";
+      frame.appendChild(img);
+
+      const cap = document.createElement("figcaption");
+      cap.className = "pv-figcaption";
+      cap.innerHTML = `
+        <span class="pv-fig-num tabular">${String(idx + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}</span>
+        <span>${getAngleCaption(project, idx)}</span>
+      `;
+
+      fig.appendChild(frame);
+      fig.appendChild(cap);
+      return fig;
+    }
+
+    function renderProjectPageContent(project) {
+      const pIdx = PROJECTS.findIndex((item) => item.id === project.id);
+      const nextProject = PROJECTS[(pIdx + 1) % PROJECTS.length];
+      const total = project.angles.length;
+
+      pvPageIndexCat.textContent = `N° ${String(pIdx + 1).padStart(2, "0")} // ${project.category.toUpperCase()}`;
+      pvPageTitle.textContent = project.title;
+      pvPageLocation.textContent = project.location;
+      pvPageSurface.textContent = project.surface;
+      pvPageYear.textContent = project.year;
+      pvPageCount.textContent = `${String(total).padStart(2, "0")} vues HD`;
+      pvPageDesc.textContent = project.description;
+
+      pvPageGallery.innerHTML = "";
+      if (total > 0) {
+        // View 01: Full-width heroic 16:9
+        pvPageGallery.appendChild(buildProjectFigure(project, project.angles[0], 0, total));
+
+        // Alternate 2-column diptychs and full-width panoramic views
+        let i = 1;
+        let expectDiptych = true;
+        while (i < total) {
+          if (expectDiptych && i + 1 < total) {
+            const row = document.createElement("div");
+            row.className = "pv-row-diptych";
+            row.appendChild(buildProjectFigure(project, project.angles[i], i, total));
+            row.appendChild(buildProjectFigure(project, project.angles[i + 1], i + 1, total));
+            pvPageGallery.appendChild(row);
+            i += 2;
+          } else {
+            pvPageGallery.appendChild(buildProjectFigure(project, project.angles[i], i, total));
+            i += 1;
+          }
+          expectDiptych = !expectDiptych;
+        }
+      }
+
+      pvNextKicker.textContent = `ÉTUDE SUIVANTE · N° ${String(((pIdx + 1) % PROJECTS.length) + 1).padStart(2, "0")} // ${nextProject.category.toUpperCase()}`;
+      pvNextTitle.textContent = nextProject.title;
+      pvNextBtn.onclick = () => openProjectPage(nextProject.id);
+
+      pvSimilarBtn.onclick = () => {
+        const prefill = `un projet ${project.category.toLowerCase()} (${project.title})`;
+        closeProjectPage("contact", prefill);
+      };
+    }
+
+    function openProjectPage(projectId, { fromHash = false } = {}) {
+      const project = PROJECT_BY_ID[projectId];
+      if (!project) return;
+      if (isViewTransitioning && activeProjectId === projectId) return;
+
+      closeDockMenu();
+      const targetHash = `#projet/${project.id}`;
+      if (!fromHash && window.location.hash !== targetHash) {
+        window.history.pushState(null, "", targetHash);
+      }
+
+      const alreadyInProject = !viewProject.hidden;
+      activeProjectId = project.id;
+
+      if (alreadyInProject) {
+        viewProject.classList.remove("is-visible");
+        window.setTimeout(() => {
+          renderProjectPageContent(project);
+          window.scrollTo({ top: 0, behavior: "auto" });
+          requestAnimationFrame(() => viewProject.classList.add("is-visible"));
+        }, REDUCED_MOTION ? 0 : 240);
+        return;
+      }
+
+      isViewTransitioning = true;
+      viewHome.classList.add("is-fading");
+
+      window.setTimeout(() => {
+        viewHome.hidden = true;
+        renderProjectPageContent(project);
+        viewProject.hidden = false;
+        window.scrollTo({ top: 0, behavior: "auto" });
+        requestAnimationFrame(() => {
+          viewProject.classList.add("is-visible");
+          isViewTransitioning = false;
+        });
+      }, REDUCED_MOTION ? 0 : 380);
+    }
+
+    function closeProjectPage(scrollTargetId = "projets", prefillProjectType = null, { fromHash = false } = {}) {
+      if (viewProject.hidden) return;
+      isViewTransitioning = true;
+      activeProjectId = null;
+
+      if (!fromHash && window.location.hash.startsWith("#projet/")) {
+        window.history.pushState(null, "", scrollTargetId ? `#${scrollTargetId}` : "#projets");
+      }
+
+      viewProject.classList.remove("is-visible");
+
+      window.setTimeout(() => {
+        viewProject.hidden = true;
+        viewHome.hidden = false;
+        ScrollTrigger.refresh();
+
+        const targetEl = scrollTargetId ? document.getElementById(scrollTargetId) : null;
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "auto" });
+          setActiveDockTab(scrollTargetId);
+        }
+
+        if (prefillProjectType && contactBriefApi) {
+          contactBriefApi.prefillType(prefillProjectType);
+        }
+
+        requestAnimationFrame(() => {
+          viewHome.classList.remove("is-fading");
+          isViewTransitioning = false;
+        });
+      }, REDUCED_MOTION ? 0 : 360);
+    }
+
+    pvBackBtn.addEventListener("click", () => closeProjectPage("projets"));
+    pvBrandBtn.addEventListener("click", () => closeProjectPage("hero"));
+
+    function syncRouteFromHash() {
+      const hash = window.location.hash || "";
+      if (hash.startsWith("#projet/")) {
+        const slug = decodeURIComponent(hash.slice("#projet/".length));
+        if (PROJECT_BY_ID[slug]) {
+          openProjectPage(slug, { fromHash: true });
+        }
+      } else if (!viewProject.hidden) {
+        const target = hash.replace("#", "") || "projets";
+        closeProjectPage(document.getElementById(target) ? target : "projets", null, { fromHash: true });
+      }
+    }
+
+    window.addEventListener("hashchange", syncRouteFromHash);
+
+    // =========================================================================
+    // 5. SECTION 1 — HERO 3D FIBONACCI SPHERE (KR.ST LIGHT)
+    // =========================================================================
+    function initHeroSphere() {
+      const section = document.getElementById("hero");
+      const mount = document.getElementById("hero-canvas-mount");
+      const introWordmark = document.getElementById("intro-wordmark");
+      const introCounter = document.getElementById("intro-counter");
+      const capEl = document.getElementById("sphere-hover-caption");
+      const capTitle = document.getElementById("sphere-cap-title");
+      const capMeta = document.getElementById("sphere-cap-meta");
+      const pvSheet = document.getElementById("hero-preview");
+      const pvCat = document.getElementById("pv-cat");
+      const pvTitle = document.getElementById("pv-title");
+      const pvSpecs = document.getElementById("pv-specs");
+      const pvDesc = document.getElementById("pv-desc");
+      const pvAngleCount = document.getElementById("pv-angle-count");
+      const pvThumbs = document.getElementById("pv-thumbs");
+      const pvClose = document.getElementById("pv-close");
+      const pvOpenLb = document.getElementById("pv-open-lb");
+
+      const renderer = new THREE.WebGLRenderer({
+        antialias: !IS_SOFTWARE_GL,
+        powerPreference: "high-performance",
+      });
+      renderer.setClearColor(0xf5f5f3, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setPixelRatio(DPR());
+      renderer.setSize(mount.clientWidth, mount.clientHeight);
+      mount.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, mount.clientWidth / Math.max(1, mount.clientHeight), 0.1, 100);
+      camera.position.set(0, 0, 12);
+
+      // Convert target pixel metrics (radius 250px, planeSize 104px) into world units at z=12, fov=60
+      function getWorldScale() {
+        const vh = Math.max(480, mount.clientHeight);
+        const visibleH = 2 * Math.tan((60 * Math.PI) / 360) * 12; // 13.8564
+        const pxToWorld = visibleH / vh;
+        const radius = Math.min(250, Math.min(mount.clientWidth, vh) * 0.34) * pxToWorld;
+        const planeH = Math.min(118, Math.max(82, 104 * (vh / 860))) * pxToWorld;
+        const planeW = planeH * (16 / 9);
+        return { radius, planeW, planeH };
+      }
+
+      const sphereGroup = new THREE.Group();
+      scene.add(sphereGroup);
+
+      const planeVert = /* glsl */ `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `;
+
+      const planeFrag = /* glsl */ `
+        uniform sampler2D uTexA;
+        uniform sampler2D uTexB;
+        uniform float uMix;
+        uniform float uTime;
+        uniform float uPhase;
+        uniform float uHover;
+        uniform float uSelected;
+        uniform float uOpacity;
+        varying vec2 vUv;
+
+        void main() {
+          float zoom = 1.04 + 0.025 * sin(uTime * 0.42 + uPhase) + uHover * 0.045;
+          vec2 drift = vec2(
+            sin(uTime * 0.25 + uPhase) * 0.012,
+            cos(uTime * 0.22 + uPhase * 1.2) * 0.01
+          );
+          vec2 uv = (vUv - 0.5) / zoom + 0.5 + drift;
+          vec3 colA = texture2D(uTexA, uv).rgb;
+          vec3 colB = texture2D(uTexB, uv).rgb;
+          vec3 col = mix(colA, colB, uMix);
+
+          // Crisp architectural light hairline border
+          vec2 edge = min(vUv, 1.0 - vUv);
+          float border = 1.0 - smoothstep(0.008, 0.015, min(edge.x, edge.y));
+          vec3 borderCol = mix(vec3(0.84, 0.84, 0.82), vec3(0.067, 0.067, 0.075), max(uHover, uSelected));
+          col = mix(col, borderCol, border * (0.45 + 0.45 * max(uHover, uSelected)));
+
+          gl_FragColor = vec4(col, uOpacity);
+        }
+      `;
+
+      const { radius: initR, planeW: initW, planeH: initH } = getWorldScale();
+      const baseGeo = new THREE.PlaneGeometry(1, 1, 1, 1);
+      const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+      const planes = [];
+      const _v1 = new THREE.Vector3();
+
+      SPHERE_NODES.forEach((node, i) => {
+        const proj = PROJECT_BY_ID[node.projectId];
+        const url = proj.angles[node.angleIndex] || proj.cover;
+
+        // Fibonacci sphere unit vector
+        const y = 1 - (i / (SPHERE_NODES.length - 1)) * 2;
+        const r = Math.sqrt(Math.max(0, 1 - y * y));
+        const theta = goldenAngle * i;
+        const unitDir = new THREE.Vector3(Math.cos(theta) * r, y, Math.sin(theta) * r).normalize();
+
+        const mat = new THREE.ShaderMaterial({
+          vertexShader: planeVert,
+          fragmentShader: planeFrag,
+          transparent: true,
+          side: THREE.DoubleSide,
+          uniforms: {
+            uTexA: { value: null },
+            uTexB: { value: null },
+            uMix: { value: 0 },
+            uTime: { value: 0 },
+            uPhase: { value: i * 0.9 },
+            uHover: { value: 0 },
+            uSelected: { value: 0 },
+            uOpacity: { value: REDUCED_MOTION ? 1 : 0 },
+          },
+        });
+
+        const initialTex = createTextureForRenderer(url, renderer, (realTex) => {
+          mat.uniforms.uTexA.value = realTex;
+          mat.uniforms.uTexB.value = realTex;
+        });
+        mat.uniforms.uTexA.value = initialTex;
+        mat.uniforms.uTexB.value = initialTex;
+
+        const mesh = new THREE.Mesh(baseGeo, mat);
+        mesh.scale.set(initW, initH, 1);
+        mesh.position.copy(unitDir).multiplyScalar(initR);
+        mesh.lookAt(_v1.copy(mesh.position).multiplyScalar(2));
+        mesh.userData = {
+          index: i,
+          projectId: node.projectId,
+          angleIndex: node.angleIndex,
+          unitDir,
+          hoverTarget: 0,
+          selected: false,
+          ringIdx: i < 10 ? i : -1,
+        };
+        sphereGroup.add(mesh);
+        planes.push(mesh);
+      });
+
+      // KR.ST Intro Sequence:
+      // "MUL" centered + "001"->"100" counter + 10-plane rotating ring -> accelerates -> collapses to center -> explodes into 20 Fibonacci sphere positions
+      let currentRadius = initR;
+      let currentW = initW;
+      let currentH = initH;
+      const introState = {
+        phase: REDUCED_MOTION ? 2 : 0, // 0=ring, 1=explode, 2=interactive
+        ringRadius: initR * 0.72,
+        ringSpin: 0,
+        explode: REDUCED_MOTION ? 1 : 0,
+        counter: REDUCED_MOTION ? 100 : 1,
+      };
+
+      if (!REDUCED_MOTION) {
+        const tl = gsap.timeline();
+        tl.to([introWordmark, introCounter], { opacity: 1, duration: 0.45, ease: "power2.out" })
+          .to(introState, {
+            counter: 100,
+            ringSpin: Math.PI * 2.6,
+            duration: 1.45,
+            ease: "power2.in",
+            onUpdate: () => {
+              introCounter.textContent = String(Math.round(introState.counter)).padStart(3, "0");
+            },
+          }, "<")
+          .to(introState, {
+            ringRadius: 0.08,
+            duration: 0.45,
+            ease: "expo.in",
+          })
+          .to([introWordmark, introCounter], {
+            opacity: 0,
+            scale: 0.94,
+            duration: 0.32,
+            ease: "power2.in",
+          }, "<")
+          .call(() => { introState.phase = 1; })
+          .to(introState, {
+            explode: 1,
+            duration: 1.25,
+            ease: "expo.out",
+            onComplete: () => { introState.phase = 2; },
+          });
+      }
+
+      // Interaction state
+      let isDragging = false;
+      let dragMoved = 0;
+      let lastX = 0;
+      let lastY = 0;
+      let rotVelX = 0;
+      let rotVelY = 0.0022;
+      let rotX = 0.14;
+      let rotY = 0;
+      let hoveredPlane = null;
+      let selectedPlane = null;
+      let selectedAngle = 0;
+
+      const raycaster = new THREE.Raycaster();
+      const pointerNdc = new THREE.Vector2(-9, -9);
+
+      function crossfadePlane(mesh, url) {
+        createTextureForRenderer(url, renderer, (loadedTex) => {
+          mesh.material.uniforms.uTexB.value = loadedTex;
+          gsap.killTweensOf(mesh.material.uniforms.uMix);
+          mesh.material.uniforms.uMix.value = 0;
+          gsap.to(mesh.material.uniforms.uMix, {
+            value: 1,
+            duration: 0.42,
+            ease: "expo.out",
+            onComplete: () => {
+              mesh.material.uniforms.uTexA.value = loadedTex;
+              mesh.material.uniforms.uMix.value = 0;
+            },
+          });
+        });
+      }
+
+      function closePreview() {
+        if (selectedPlane) {
+          selectedPlane.userData.selected = false;
+          gsap.to(selectedPlane.material.uniforms.uSelected, { value: 0, duration: 0.25 });
+          selectedPlane = null;
+        }
+        pvSheet.classList.remove("is-open");
+        gsap.to(camera.position, { x: 0, y: 0, z: 12, duration: 0.85, ease: "expo.out" });
+      }
+
+      function focusPlane(mesh) {
+        if (selectedPlane && selectedPlane !== mesh) {
+          selectedPlane.userData.selected = false;
+          gsap.to(selectedPlane.material.uniforms.uSelected, { value: 0, duration: 0.22 });
+        }
+        selectedPlane = mesh;
+        selectedPlane.userData.selected = true;
+        gsap.to(selectedPlane.material.uniforms.uSelected, { value: 1, duration: 0.28 });
+
+        const p = PROJECT_BY_ID[mesh.userData.projectId];
+        selectedAngle = mesh.userData.angleIndex || 0;
+
+        // Rotate sphere so clicked plane faces camera cleanly
+        const dir = mesh.userData.unitDir;
+        const targetRotY = -Math.atan2(dir.x, dir.z);
+        const horiz = Math.hypot(dir.x, dir.z);
+        const targetRotX = THREE.MathUtils.clamp(Math.atan2(dir.y, horiz) * 0.78, -0.78, 0.78);
+
+        let dy = ((targetRotY - rotY + Math.PI) % (Math.PI * 2)) - Math.PI;
+        if (dy < -Math.PI) dy += Math.PI * 2;
+        const destY = rotY + dy;
+
+        rotVelX = 0;
+        rotVelY = 0;
+        const proxy = { rx: rotX, ry: rotY };
+        gsap.to(proxy, {
+          rx: targetRotX,
+          ry: destY,
+          duration: 0.95,
+          ease: "expo.out",
+          onUpdate: () => { rotX = proxy.rx; rotY = proxy.ry; },
+        });
+        gsap.to(camera.position, {
+          z: window.innerWidth < 640 ? 10.2 : 8.4,
+          x: window.innerWidth < 640 ? 0 : 1.05,
+          y: 0,
+          duration: 0.95,
+          ease: "expo.out",
+        });
+
+        pvCat.textContent = p.category;
+        pvTitle.textContent = p.title;
+        pvSpecs.textContent = `${p.location} · ${p.surface} · ${p.year}`;
+        pvDesc.textContent = p.description;
+        pvAngleCount.textContent = `${p.angles.length} vues`;
+
+        pvThumbs.innerHTML = "";
+        p.angles.forEach((url, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "preview-thumb" + (idx === selectedAngle ? " is-active" : "");
+          btn.setAttribute("aria-label", `Angle ${idx + 1}`);
+          const im = document.createElement("img");
+          im.src = url;
+          im.alt = `${p.title} angle ${idx + 1}`;
+          im.loading = "lazy";
+          im.referrerPolicy = "no-referrer";
+          btn.appendChild(im);
+          btn.addEventListener("click", () => {
+            selectedAngle = idx;
+            pvThumbs.querySelectorAll(".preview-thumb").forEach((t, ti) => t.classList.toggle("is-active", ti === idx));
+            crossfadePlane(mesh, url);
+          });
+          pvThumbs.appendChild(btn);
+        });
+
+        pvOpenLb.onclick = () => {
+          closePreview();
+          openProjectPage(p.id);
+        };
+        pvSheet.classList.add("is-open");
+        capEl.classList.remove("is-visible");
+      }
+
+      pvClose.addEventListener("click", closePreview);
+
+      let lastRayTime = 0;
+      mount.addEventListener("pointerdown", (e) => {
+        isDragging = true;
+        dragMoved = 0;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        mount.classList.add("is-dragging");
+      });
+
+      window.addEventListener("pointermove", (e) => {
+        if (isDragging) {
+          const dx = e.clientX - lastX;
+          const dy = e.clientY - lastY;
+          dragMoved += Math.abs(dx) + Math.abs(dy);
+          lastX = e.clientX;
+          lastY = e.clientY;
+          rotVelY = dx * 0.0052;
+          rotVelX = dy * 0.0042;
+          rotY += rotVelY;
+          rotX = THREE.MathUtils.clamp(rotX + rotVelX, -0.95, 0.95);
+          capEl.classList.remove("is-visible");
+          return;
+        }
+        if (!isVisible || IS_TOUCH || introState.phase < 2) return;
+        const rect = mount.getBoundingClientRect();
+        if (e.clientY < rect.top || e.clientY > rect.bottom || e.clientX < rect.left || e.clientX > rect.right) {
+          capEl.classList.remove("is-visible");
+          mount.classList.remove("is-hovering");
+          return;
+        }
+        const now = performance.now();
+        if (now - lastRayTime < 30) return;
+        lastRayTime = now;
+
+        pointerNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        pointerNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointerNdc, camera);
+        const hits = raycaster.intersectObjects(planes, false);
+        if (hits.length > 0) {
+          const h = hits[0].object;
+          if (hoveredPlane !== h) {
+            if (hoveredPlane) hoveredPlane.userData.hoverTarget = 0;
+            hoveredPlane = h;
+            hoveredPlane.userData.hoverTarget = 1;
+          }
+          const proj = PROJECT_BY_ID[h.userData.projectId];
+          capTitle.textContent = proj.title;
+          capMeta.textContent = `${proj.category} · ${proj.location}`;
+          capEl.classList.add("is-visible");
+          mount.classList.add("is-hovering");
+        } else {
+          if (hoveredPlane) {
+            hoveredPlane.userData.hoverTarget = 0;
+            hoveredPlane = null;
+          }
+          capEl.classList.remove("is-visible");
+          mount.classList.remove("is-hovering");
+        }
+      });
+
+      window.addEventListener("pointerup", (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        mount.classList.remove("is-dragging");
+        if (dragMoved < 8 && introState.phase >= 1) {
+          const rect = mount.getBoundingClientRect();
+          pointerNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+          pointerNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+          raycaster.setFromCamera(pointerNdc, camera);
+          const hits = raycaster.intersectObjects(planes, false);
+          if (hits.length > 0) focusPlane(hits[0].object);
+          else if (selectedPlane) closePreview();
+        }
+      });
+
+      function onResize() {
+        const w = mount.clientWidth;
+        const h = Math.max(1, mount.clientHeight);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setPixelRatio(DPR());
+        renderer.setSize(w, h);
+        const sc = getWorldScale();
+        currentRadius = sc.radius;
+        currentW = sc.planeW;
+        currentH = sc.planeH;
+      }
+      window.addEventListener("resize", onResize);
+
+      let isVisible = true;
+      let frameId = 0;
+      const clock = new THREE.Clock();
+
+      function tick() {
+        if (!isVisible) return;
+        const dt = Math.min(clock.getDelta(), 0.05);
+        const t = clock.elapsedTime;
+
+        if (!isDragging && introState.phase >= 1) {
+          rotVelX *= 0.94;
+          rotVelY *= 0.94;
+          const idleSpin = selectedPlane || REDUCED_MOTION ? 0 : 0.0014;
+          rotY += rotVelY + idleSpin;
+          rotX = THREE.MathUtils.clamp(rotX + rotVelX, -0.95, 0.95);
+        }
+
+        sphereGroup.rotation.y = THREE.MathUtils.damp(sphereGroup.rotation.y, rotY, 8, dt);
+        sphereGroup.rotation.x = THREE.MathUtils.damp(sphereGroup.rotation.x, rotX, 8, dt);
+
+        for (let i = 0; i < planes.length; i++) {
+          const m = planes[i];
+          const u = m.material.uniforms;
+          u.uTime.value = t;
+          u.uHover.value = THREE.MathUtils.damp(u.uHover.value, m.userData.hoverTarget, 10, dt);
+
+          if (introState.phase === 0) {
+            if (m.userData.ringIdx >= 0) {
+              const a = (m.userData.ringIdx / 10) * Math.PI * 2 + introState.ringSpin;
+              m.position.set(Math.cos(a) * introState.ringRadius, Math.sin(a) * introState.ringRadius * 0.45, Math.sin(a) * introState.ringRadius);
+              m.lookAt(0, 0, 12);
+              m.scale.set(currentW * 0.78, currentH * 0.78, 1);
+              u.uOpacity.value = 0.95;
+            } else {
+              u.uOpacity.value = 0;
+            }
+          } else {
+            const e = introState.explode;
+            m.position.copy(m.userData.unitDir).multiplyScalar(currentRadius * e);
+            _v1.copy(m.position).multiplyScalar(2);
+            if (_v1.lengthSq() > 0.0001) m.lookAt(_v1);
+            const boost = m.userData.selected ? 1.24 : 1.0 + u.uHover.value * 0.07;
+            const targetW = currentW * boost * (0.25 + 0.75 * e);
+            const targetH = currentH * boost * (0.25 + 0.75 * e);
+            m.scale.x = THREE.MathUtils.damp(m.scale.x, targetW, 10, dt);
+            m.scale.y = THREE.MathUtils.damp(m.scale.y, targetH, 10, dt);
+            u.uOpacity.value = Math.min(1, e * 1.4);
+          }
+        }
+
+        renderer.render(scene, camera);
+        if (IS_SOFTWARE_GL) afterDraw(renderer, tick, (id) => { frameId = id; });
+        else frameId = requestAnimationFrame(tick);
+      }
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            if (!isVisible) { isVisible = true; clock.getDelta(); tick(); }
+          } else {
+            isVisible = false;
+            cancelAnimationFrame(frameId);
+            clearTimeout(frameId);
+            capEl.classList.remove("is-visible");
+          }
+        },
+        { threshold: 0.02 }
+      );
+      io.observe(section);
+      tick();
+
+      return { closePreview };
+    }
+
+    // =========================================================================
+    // 6. SECTION 2 — LE CABINET & RAIL MAGNÉTIQUE (KR.ST VIEW 3 IN LIGHT)
+    // =========================================================================
+    function initCabinetView() {
+      const section = document.getElementById("cabinet");
+      const mount = document.getElementById("cabinet-canvas-mount");
+      const waAnchor = document.getElementById("cabinet-wa-link");
+
+      const renderer = new THREE.WebGLRenderer({
+        antialias: !IS_SOFTWARE_GL,
+        powerPreference: "high-performance",
+      });
+      renderer.setClearColor(0xf5f5f3, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.setPixelRatio(DPR());
+      renderer.setSize(mount.clientWidth, mount.clientHeight);
+      mount.appendChild(renderer.domElement);
+
+      const camera = new THREE.PerspectiveCamera(45, mount.clientWidth / Math.max(1, mount.clientHeight), 0.1, 80);
+      camera.position.set(0, 0, 12);
+
+      // Two-layer composition:
+      // 1) textScene (rendered into textRT with #f5f5f3 background) -> displays centered Serif Manifesto (z=-8) + 10-stop Magnetic Rail (z=-3.5)
+      // 2) postScene displays textRT with click chromatic lens-burst distortion
+      // 3) headScene displays the 3D Chrome Head (z=-1, ~200px tall) cleanly on top
+      const textScene = new THREE.Scene();
+      textScene.background = new THREE.Color(0xf5f5f3);
+
+      const headScene = new THREE.Scene();
+      // Bright Light-Studio PMREM Environment (#eaeae6 softboxes + RoomEnvironment) for crisp chrome on light ground
+      const envScene = new RoomEnvironment();
+      envScene.background = new THREE.Color(0xeaeae6);
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      headScene.environment = pmrem.fromScene(envScene, 0.04).texture;
+      pmrem.dispose();
+
+      // Balanced studio light rig on light background
+      const hemi = new THREE.HemisphereLight(0xffffff, 0xd8d8d2, 1.35);
+      headScene.add(hemi);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+      keyLight.position.set(4.5, 5.5, 6.0);
+      headScene.add(keyLight);
+      const cobaltRim = new THREE.PointLight(0x1621ff, 3.8, 16);
+      cobaltRim.position.set(-3.4, -1.8, 2.4);
+      headScene.add(cobaltRim);
+      const fillLight = new THREE.DirectionalLight(0xeaeae6, 1.1);
+      fillLight.position.set(-4.0, 2.5, 3.5);
+      headScene.add(fillLight);
+
+      // Liquid-glass reveal shader (0->1 over 3.85s power2.out, cobalt #1621ff meniscus rim)
+      const revealUniforms = {
+        uReveal: { value: REDUCED_MOTION ? 1.0 : 0.0 },
+        uTime: { value: 0.0 },
+        uHoverGlow: { value: 0.0 },
+      };
+
+      function injectLiquidReveal(mat) {
+        mat.onBeforeCompile = (shader) => {
+          shader.uniforms.uReveal = revealUniforms.uReveal;
+          shader.uniforms.uTime = revealUniforms.uTime;
+          shader.uniforms.uHoverGlow = revealUniforms.uHoverGlow;
+          shader.vertexShader = shader.vertexShader
+            .replace("#include <common>", "#include <common>\nvarying vec3 vLocalPos;")
+            .replace("#include <begin_vertex>", "#include <begin_vertex>\nvLocalPos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+          shader.fragmentShader = shader.fragmentShader
+            .replace(
+              "#include <common>",
+              `#include <common>
+               uniform float uReveal;
+               uniform float uTime;
+               uniform float uHoverGlow;
+               varying vec3 vLocalPos;`
+            )
+            .replace(
+              "#include <dithering_fragment>",
+              `
+              float wave = sin(vLocalPos.x * 5.2 + uTime * 2.5) * 0.065 + cos(vLocalPos.z * 4.8 - uTime * 2.1) * 0.05;
+              float cutoff = mix(-1.85, 2.05, uReveal) + wave * (1.0 - smoothstep(0.86, 1.0, uReveal));
+              if (vLocalPos.y > cutoff) discard;
+
+              float meniscus = smoothstep(0.22, 0.0, cutoff - vLocalPos.y) * (1.0 - smoothstep(0.92, 1.0, uReveal));
+              gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.086, 0.129, 1.0), clamp(meniscus * 0.92, 0.0, 0.95));
+
+              float fres = pow(1.0 - clamp(abs(normal.z), 0.0, 1.0), 2.8);
+              gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.086, 0.129, 1.0), fres * uHoverGlow * 0.42);
+              #include <dithering_fragment>
+              `
+            );
+        };
+      }
+
+      // 3D Chrome Head Group positioned at z = -1 (~200px tall on desktop)
+      const headRoot = new THREE.Group();
+      headRoot.position.set(0, 0, -1);
+      headScene.add(headRoot);
+
+      const headPivot = new THREE.Group();
+      headRoot.add(headPivot);
+
+      const chromeMat = new THREE.MeshPhysicalMaterial({
+        color: 0xe6e8ec,
+        metalness: 1.0,
+        roughness: 0.07,
+        clearcoat: 0.85,
+        clearcoatRoughness: 0.06,
+      });
+      injectLiquidReveal(chromeMat);
+
+      const darkTrimMat = new THREE.MeshStandardMaterial({
+        color: 0x222328,
+        metalness: 0.88,
+        roughness: 0.28,
+      });
+      injectLiquidReveal(darkTrimMat);
+
+      const visorMat = new THREE.MeshPhysicalMaterial({
+        color: 0x09090b,
+        metalness: 0.22,
+        roughness: 0.05,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03,
+      });
+      injectLiquidReveal(visorMat);
+
+      const eyeMat = new THREE.MeshBasicMaterial({ color: 0x90b4ff });
+
+      // Composite primitives (head shell, dark glossy visor, blinking capsule eyes, ear tori, collar, antenna, rotating tilted halo)
+      const skull = new THREE.Mesh(new THREE.SphereGeometry(1.0, 48, 48), chromeMat);
+      skull.scale.set(1.05, 0.96, 0.98);
+      headPivot.add(skull);
+
+      const visor = new THREE.Mesh(
+        new THREE.SphereGeometry(0.93, 40, 32, -Math.PI * 0.36, Math.PI * 0.72, Math.PI * 0.32, Math.PI * 0.34),
+        visorMat
+      );
+      visor.position.set(0, 0.03, 0.12);
+      headPivot.add(visor);
+
+      const eyeGeo = new THREE.CapsuleGeometry(0.052, 0.125, 8, 16);
+      const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+      leftEye.position.set(-0.29, 0.04, 0.98);
+      const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+      rightEye.position.set(0.29, 0.04, 0.98);
+      headPivot.add(leftEye, rightEye);
+
+      const earGeo = new THREE.TorusGeometry(0.23, 0.048, 16, 32);
+      const leftEar = new THREE.Mesh(earGeo, darkTrimMat);
+      leftEar.rotation.y = Math.PI * 0.5;
+      leftEar.position.set(-1.01, 0.02, 0);
+      const rightEar = new THREE.Mesh(earGeo, darkTrimMat);
+      rightEar.rotation.y = Math.PI * 0.5;
+      rightEar.position.set(1.01, 0.02, 0);
+      headPivot.add(leftEar, rightEar);
+
+      const collar = new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.062, 16, 48), darkTrimMat);
+      collar.rotation.x = Math.PI * 0.5;
+      collar.position.y = -0.88;
+      headPivot.add(collar);
+
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.04, 0.42, 16), darkTrimMat);
+      mast.position.set(0, 1.12, -0.04);
+      const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.072, 20, 20), new THREE.MeshBasicMaterial({ color: 0x1621ff }));
+      beacon.position.set(0, 1.36, -0.04);
+      headPivot.add(mast, beacon);
+
+      const haloPivot = new THREE.Group();
+      haloPivot.rotation.set(0.44, 0.14, -0.34);
+      headRoot.add(haloPivot);
+
+      const haloRing = new THREE.Mesh(new THREE.TorusGeometry(1.62, 0.032, 20, 96), chromeMat);
+      haloRing.rotation.x = Math.PI * 0.5;
+      haloPivot.add(haloRing);
+
+      // Invisible hit sphere for clicking the head
+      const headHitMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1.55, 16, 16),
+        new THREE.MeshBasicMaterial({ visible: false })
+      );
+      headRoot.add(headHitMesh);
+
+      // Scale head to ~200px tall on screen (z=-1 -> dist=13 from camera at z=12)
+      function syncHeadScale() {
+        const vh = Math.max(480, mount.clientHeight);
+        const visibleHAtHead = 2 * Math.tan((45 * Math.PI) / 360) * 13;
+        const targetWorldH = (200 / vh) * visibleHAtHead;
+        const scale = targetWorldH / 2.25;
+        headRoot.scale.setScalar(scale);
+      }
+      syncHeadScale();
+
+      // ---- Centered Serif Manifesto at z = -8 ----
+      function buildManifestoMesh() {
+        const c = document.createElement("canvas");
+        c.width = 2200;
+        c.height = 960;
+        const ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#111113";
+        ctx.font = '300 112px "Newsreader", Georgia, serif';
+        ctx.fillText("Façonner des territoires durables", 1100, 290);
+        ctx.fillText("par une ingénierie urbaine,", 1100, 420);
+        ctx.fillText("architecturale et SIG™ de précision.", 1100, 550);
+
+        ctx.fillStyle = "#6b6b68";
+        ctx.font = '500 26px "Geist", sans-serif';
+        ctx.fillText("Marc Urban Lab — Cabinet d'Urbanisme & d'Architecture", 1100, 682);
+
+        const tex = new THREE.CanvasTexture(c);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(18.2, 7.95), mat);
+        mesh.position.set(0, 0.15, -8);
+        return mesh;
+      }
+
+      let manifestoMesh = buildManifestoMesh();
+      textScene.add(manifestoMesh);
+
+      // ---- Endless Looping Magnetic Horizontal Text Track (10 exact stops) ----
+      const TRACK_STOPS = [
+        {
+          side: "top",
+          lines: [
+            { text: "01 · Cartographie et SIG", style: "label" },
+            { text: "Cartographie thématique, bases de données", style: "serif" },
+            { text: "géospatiales, analyse spatiale et cartes sur mesure.", style: "serif" },
+          ],
+        },
+        {
+          side: "bottom",
+          lines: [
+            { text: "02 · Étude Urbaine", style: "label" },
+            { text: "Conception de lotissement", style: "serif" },
+            { text: "Suivi de projet d'aménagement", style: "serif" },
+            { text: "Étude environnementale (Cabinet agréé)", style: "serif" },
+          ],
+        },
+        {
+          side: "top",
+          lines: [
+            { text: "Vision  ·  Territoire", style: "label" },
+            { text: "I", style: "numeral" },
+            { text: "Pour un urbanisme durable et des", style: "serif" },
+            { text: "territoires mieux pensés.", style: "serif" },
+          ],
+        },
+        {
+          side: "bottom",
+          lines: [
+            { text: "« De la conception à la livraison, nous", style: "quote" },
+            { text: "valorisons vos projets immobiliers. »", style: "quote" },
+            { text: "— 03 · Gestion Immobilière", style: "label" },
+          ],
+        },
+        {
+          side: "top",
+          lines: [
+            { text: "04 · Documents Administratifs", style: "label" },
+            { text: "01  Permis de Bâtir", style: "serif" },
+            { text: "02  Permis d'implanter", style: "serif" },
+            { text: "03  Permis de démolir", style: "serif" },
+            { text: "04  Autorisation de lotir", style: "serif" },
+          ],
+        },
+        {
+          side: "bottom",
+          lines: [
+            { text: "05 · Étude de Faisabilité", style: "label" },
+            { text: "Analyse technique, économique,", style: "serif" },
+            { text: "environnementale et sociale rigoureuse", style: "serif" },
+            { text: "de vos projets.", style: "serif" },
+          ],
+        },
+        {
+          side: "top",
+          lines: [
+            { text: "06 · Étude Architecturale", style: "label" },
+            { text: "II", style: "numeral" },
+            { text: "Plans, conceptions 2D/3D, modélisation et", style: "serif" },
+            { text: "accompagnement jusqu'à la réalisation.", style: "serif" },
+          ],
+        },
+        {
+          side: "bottom",
+          lines: [
+            { text: "Engagements", style: "label" },
+            { text: "Aménager", style: "serif" },
+            { text: "Bâtir", style: "serif" },
+            { text: "Préserver", style: "serif" },
+            { text: "Précision SIG", style: "serif" },
+            { text: "Conformité réglementaire", style: "serif" },
+          ],
+        },
+        {
+          side: "top",
+          lines: [
+            { text: "« Vos projets, notre expertise. »", style: "quote" },
+            { text: "— Marc Urban Lab", style: "label" },
+          ],
+        },
+        {
+          side: "bottom",
+          lines: [
+            { text: "Contact", style: "label" },
+            { text: "WhatsApp : +237 651 763 753 →", style: "link", action: "whatsapp" },
+            { text: "Voir tous les projets ↓", style: "link", action: "projets" },
+            { text: "Études • Réalisation • Suivi", style: "mute" },
+          ],
+        },
+      ];
+
+      function createLineSprite(line) {
+        const c = document.createElement("canvas");
+        const ctx = c.getContext("2d");
+        let font = '400 32px "Newsreader", Georgia, serif';
+        let color = "#111113";
+        let pxH = 44;
+        let worldH = 0.34;
+
+        if (line.style === "label") {
+          font = '500 22px "Geist", sans-serif';
+          color = "#6b6b68";
+          pxH = 34;
+          worldH = 0.25;
+        } else if (line.style === "mute") {
+          font = '400 24px "Geist", sans-serif';
+          color = "#6b6b68";
+          pxH = 36;
+          worldH = 0.27;
+        } else if (line.style === "numeral") {
+          font = '300 118px "Newsreader", Georgia, serif';
+          color = "#111113";
+          pxH = 132;
+          worldH = 0.92;
+        } else if (line.style === "quote") {
+          font = 'italic 300 36px "Newsreader", Georgia, serif';
+          color = "#111113";
+          pxH = 48;
+          worldH = 0.38;
+        } else if (line.style === "link") {
+          font = '400 34px "Newsreader", Georgia, serif';
+          color = "#111113";
+          pxH = 48;
+          worldH = 0.38;
+        }
+
+        ctx.font = font;
+        const measured = Math.ceil(ctx.measureText(line.text).width) + 28;
+        c.width = Math.max(120, measured);
+        c.height = pxH;
+
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(line.text, 6, pxH * 0.52);
+
+        if (line.style === "link") {
+          ctx.strokeStyle = "rgba(17, 17, 19, 0.32)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(6, pxH * 0.86);
+          ctx.lineTo(measured - 22, pxH * 0.86);
+          ctx.stroke();
+        }
+
+        const tex = new THREE.CanvasTexture(c);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+        const aspect = c.width / c.height;
+        const worldW = worldH * aspect;
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(worldW, worldH), mat);
+        mesh.userData.worldW = worldW;
+        mesh.userData.worldH = worldH;
+        mesh.userData.action = line.action || null;
+        return mesh;
+      }
+
+      const trackGroup = new THREE.Group();
+      textScene.add(trackGroup);
+      const trackLines = [];
+      const clickableTrackMeshes = [];
+      const STOP_SPACING = 6.2;
+      const TRACK_TOTAL = TRACK_STOPS.length * STOP_SPACING;
+
+      function rebuildTrackText() {
+        while (trackGroup.children.length) trackGroup.remove(trackGroup.children[0]);
+        trackLines.length = 0;
+        clickableTrackMeshes.length = 0;
+
+        TRACK_STOPS.forEach((stop, si) => {
+          const baseX = si * STOP_SPACING;
+          const isTop = stop.side === "top";
+          let cursorY = isTop ? 4.35 : -1.85;
+
+          stop.lines.forEach((line, li) => {
+            const mesh = createLineSprite(line);
+            const h = mesh.userData.worldH;
+            mesh.position.set(baseX + mesh.userData.worldW * 0.5, cursorY, -3.5);
+            trackGroup.add(mesh);
+            trackLines.push({
+              mesh,
+              localX: baseX + mesh.userData.worldW * 0.5,
+              baseY: cursorY,
+              lineIdx: li,
+              lineCount: stop.lines.length,
+              isTop,
+              curY: cursorY,
+            });
+            if (line.action) clickableTrackMeshes.push(mesh);
+            cursorY -= h + (line.style === "numeral" ? 0.14 : 0.1);
+          });
+        });
+      }
+
+      rebuildTrackText();
+
+      // Rebuild 2D canvas text once Geist & Newsreader WOFF2 finish loading
+      document.fonts.ready.then(() => {
+        textScene.remove(manifestoMesh);
+        manifestoMesh = buildManifestoMesh();
+        textScene.add(manifestoMesh);
+        rebuildTrackText();
+      });
+
+      // Offscreen HalfFloat RenderTarget + Click Chromatic Lens-Burst Post-Pass
+      const textRT = new THREE.WebGLRenderTarget(
+        Math.max(1, Math.floor(mount.clientWidth * DPR())),
+        Math.max(1, Math.floor(mount.clientHeight * DPR())),
+        { type: THREE.HalfFloatType }
+      );
+      const postScene = new THREE.Scene();
+      const postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const burstUniforms = {
+        tDiffuse: { value: textRT.texture },
+        uBurst: { value: 0 },
+        uCenter: { value: new THREE.Vector2(0.5, 0.5) },
+      };
+      const postMat = new THREE.ShaderMaterial({
+        uniforms: burstUniforms,
+        vertexShader: /* glsl */ `
+          varying vec2 vUv;
+          void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
+        `,
+        fragmentShader: /* glsl */ `
+          uniform sampler2D tDiffuse;
+          uniform float uBurst;
+          uniform vec2 uCenter;
+          varying vec2 vUv;
+          void main() {
+            vec2 dir = vUv - uCenter;
+            float dist = length(dir);
+            float wave = exp(-pow((dist - (1.0 - uBurst) * 0.72) * 11.0, 2.0)) * uBurst;
+            vec2 off = normalize(dir + 0.0001) * wave * 0.032;
+            float r = texture2D(tDiffuse, vUv + off * 1.4).r;
+            float g = texture2D(tDiffuse, vUv + off * 0.4).g;
+            float b = texture2D(tDiffuse, vUv - off * 1.2).b;
+            vec3 col = vec3(r, g, b);
+            col = mix(col, vec3(0.086, 0.129, 1.0), wave * 0.14);
+            gl_FragColor = vec4(col, 1.0);
+          }
+        `,
+      });
+      postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), postMat));
+
+      // Trigger liquid-glass reveal via ScrollTrigger (0->1 over 3.85s power2.out)
+      let revealStarted = REDUCED_MOTION;
+      function triggerLiquidReveal() {
+        if (revealStarted) return;
+        revealStarted = true;
+        gsap.to(revealUniforms.uReveal, {
+          value: 1.0,
+          duration: 3.85,
+          ease: "power2.out",
+        });
+      }
+
+      if (!REDUCED_MOTION) {
+        ScrollTrigger.create({
+          trigger: "#cabinet",
+          start: "top 75%",
+          once: true,
+          onEnter: triggerLiquidReveal,
+        });
+      }
+
+      // Interaction: horizontal drag / horizontal wheel trackpad / head cursor tracking / 30s sleep / click lens-burst & Stop-10 links
+      let trackOffset = 2.0;
+      let trackVel = 0;
+      let dragging = false;
+      let dragMoved = 0;
+      let lastX = 0;
+      let targetYaw = 0;
+      let targetPitch = 0;
+      let hoverHead = 0;
+      let lastActiveAt = performance.now();
+      let isSleeping = false;
+
+      const raycaster = new THREE.Raycaster();
+      const pointerNdc = new THREE.Vector2(-9, -9);
+
+      function wakeUp() {
+        lastActiveAt = performance.now();
+        if (isSleeping) {
+          isSleeping = false;
+          gsap.fromTo(
+            headPivot.rotation,
+            { z: -0.14 },
+            { z: 0, duration: 0.75, ease: "elastic.out(1, 0.4)" }
+          );
+        }
+      }
+
+      mount.addEventListener("wheel", (e) => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) * 0.7 && Math.abs(e.deltaX) > 1) {
+          e.preventDefault();
+          trackVel += e.deltaX * 0.0022;
+          wakeUp();
+        }
+      }, { passive: false });
+
+      mount.addEventListener("pointerdown", (e) => {
+        dragging = true;
+        dragMoved = 0;
+        lastX = e.clientX;
+        mount.classList.add("is-dragging");
+        wakeUp();
+      });
+
+      window.addEventListener("pointermove", (e) => {
+        if (dragging) {
+          const dx = e.clientX - lastX;
+          dragMoved += Math.abs(dx);
+          lastX = e.clientX;
+          trackOffset -= dx * 0.018;
+          trackVel = -dx * 0.009;
+          return;
+        }
+        if (!isVisible) return;
+        const rect = mount.getBoundingClientRect();
+        if (e.clientY < rect.top || e.clientY > rect.bottom) return;
+
+        wakeUp();
+        const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+        targetYaw = THREE.MathUtils.clamp(nx * 0.52, -0.58, 0.58);
+        targetPitch = THREE.MathUtils.clamp(ny * 0.3, -0.34, 0.34);
+
+        pointerNdc.set(nx, -ny);
+        raycaster.setFromCamera(pointerNdc, camera);
+        const headHit = raycaster.intersectObject(headHitMesh, false);
+        hoverHead = headHit.length > 0 ? 1 : 0;
+        const linkHits = raycaster.intersectObjects(clickableTrackMeshes, false);
+        mount.classList.toggle("is-pointer", headHit.length > 0 || linkHits.length > 0);
+      });
+
+      window.addEventListener("pointerup", (e) => {
+        if (!dragging) return;
+        dragging = false;
+        mount.classList.remove("is-dragging");
+        if (dragMoved < 8) {
+          const rect = mount.getBoundingClientRect();
+          const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+          const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+          pointerNdc.set(nx, ny);
+          raycaster.setFromCamera(pointerNdc, camera);
+
+          const linkHits = raycaster.intersectObjects(clickableTrackMeshes, false);
+          if (linkHits.length > 0) {
+            const action = linkHits[0].object.userData.action;
+            if (action === "whatsapp") {
+              waAnchor.click();
+            } else if (action === "projets") {
+              document.getElementById("projets").scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth" });
+            }
+            return;
+          }
+
+          const headHit = raycaster.intersectObject(headHitMesh, false);
+          if (headHit.length > 0) {
+            burstUniforms.uCenter.value.set(
+              (e.clientX - rect.left) / rect.width,
+              1 - (e.clientY - rect.top) / rect.height
+            );
+            gsap.killTweensOf(burstUniforms.uBurst);
+            burstUniforms.uBurst.value = 1;
+            gsap.to(burstUniforms.uBurst, { value: 0, duration: 0.85, ease: "expo.out" });
+            gsap.fromTo(
+              headPivot.scale,
+              { x: 1.07, y: 0.93, z: 1.07 },
+              { x: 1, y: 1, z: 1, duration: 0.7, ease: "elastic.out(1, 0.42)" }
+            );
+          }
+        }
+      });
+
+      function onResize() {
+        const w = mount.clientWidth;
+        const h = Math.max(1, mount.clientHeight);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        const dpr = DPR();
+        renderer.setPixelRatio(dpr);
+        renderer.setSize(w, h);
+        textRT.setSize(Math.max(1, Math.floor(w * dpr)), Math.max(1, Math.floor(h * dpr)));
+        syncHeadScale();
+      }
+      window.addEventListener("resize", onResize);
+
+      let isVisible = false;
+      let frameId = 0;
+      let nextBlinkAt = 3.2;
+      let blinkT = 0;
+      const clock = new THREE.Clock();
+
+      function tick() {
+        if (!isVisible) return;
+        const dt = Math.min(clock.getDelta(), 0.05);
+        const t = clock.elapsedTime;
+
+        revealUniforms.uTime.value = t;
+        revealUniforms.uHoverGlow.value = THREE.MathUtils.damp(revealUniforms.uHoverGlow.value, hoverHead, 6, dt);
+
+        // Sleep after 30s of inactivity
+        if (!isSleeping && performance.now() - lastActiveAt > 30000) {
+          isSleeping = true;
+        }
+
+        // Smooth auto-glide + inertia
+        if (!dragging) {
+          trackVel *= 0.93;
+          const autoGlide = REDUCED_MOTION ? 0 : 0.72 * dt;
+          trackOffset += trackVel + autoGlide;
+        }
+
+        // Magnetic oval keep-out zone around 3D head (Rx: 3.4, Ry: 4.0543; scaled 0.7875 on mobile)
+        const mobileScale = window.innerWidth < 640 ? 0.7875 : 1.0;
+        const Rx = 3.4 * mobileScale;
+        const Ry = 4.0543 * mobileScale;
+
+        for (let i = 0; i < trackLines.length; i++) {
+          const item = trackLines[i];
+          let x = ((item.localX - trackOffset) % TRACK_TOTAL + TRACK_TOTAL) % TRACK_TOTAL;
+          if (x > TRACK_TOTAL * 0.5) x -= TRACK_TOTAL;
+          item.mesh.position.x = x;
+
+          // Smooth oval magnetic keep-out deflection around head at (0, 0)
+          let desiredY = item.baseY;
+          const nx = x / Rx;
+          if (Math.abs(nx) < 1.0) {
+            const ovalFactor = Math.sqrt(Math.max(0, 1.0 - nx * nx));
+            const keepOut = ovalFactor * (Ry * 0.52);
+            if (item.isTop) {
+              const stackOffset = (item.lineCount - 1 - item.lineIdx) * 0.34;
+              desiredY = Math.max(item.baseY, keepOut + 0.45 + stackOffset);
+            } else {
+              const stackOffset = item.lineIdx * 0.34;
+              desiredY = Math.min(item.baseY, -keepOut - 0.45 - stackOffset);
+            }
+          }
+          item.curY = THREE.MathUtils.damp(item.curY, desiredY, 8, dt);
+          item.mesh.position.y = item.curY;
+        }
+
+        // 3D Chrome Head motion
+        headRoot.position.y = Math.sin(t * 1.4) * 0.08;
+        const sleepPitch = isSleeping ? 0.24 : targetPitch;
+        const sleepYaw = isSleeping ? Math.sin(t * 0.6) * 0.14 : targetYaw;
+        headPivot.rotation.y = THREE.MathUtils.damp(headPivot.rotation.y, sleepYaw, 6, dt);
+        headPivot.rotation.x = THREE.MathUtils.damp(headPivot.rotation.x, sleepPitch, 6, dt);
+
+        // Tilted halo rotates at 0.35 rad/s
+        haloRing.rotation.z += 0.35 * dt;
+
+        // Blink every 3-5 seconds
+        if (isSleeping) {
+          leftEye.scale.y = THREE.MathUtils.damp(leftEye.scale.y, 0.12, 8, dt);
+          rightEye.scale.y = THREE.MathUtils.damp(rightEye.scale.y, 0.12, 8, dt);
+        } else if (t > nextBlinkAt) {
+          blinkT += dt * 9.5;
+          const sy = Math.max(0.08, Math.abs(Math.cos(blinkT * Math.PI)));
+          leftEye.scale.y = sy;
+          rightEye.scale.y = sy;
+          if (blinkT >= 1) {
+            leftEye.scale.y = 1;
+            rightEye.scale.y = 1;
+            blinkT = 0;
+            nextBlinkAt = t + 3.0 + Math.random() * 2.0;
+          }
+        } else {
+          leftEye.scale.y = THREE.MathUtils.damp(leftEye.scale.y, 1, 10, dt);
+          rightEye.scale.y = THREE.MathUtils.damp(rightEye.scale.y, 1, 10, dt);
+        }
+
+        // Render text layer -> post lens-burst -> head layer on top
+        renderer.autoClear = true;
+        if (!IS_SOFTWARE_GL && burstUniforms.uBurst.value > 0.002) {
+          renderer.setRenderTarget(textRT);
+          renderer.render(textScene, camera);
+          renderer.setRenderTarget(null);
+          renderer.render(postScene, postCam);
+        } else {
+          renderer.setRenderTarget(null);
+          renderer.render(textScene, camera);
+        }
+        renderer.autoClear = false;
+        renderer.clearDepth();
+        renderer.render(headScene, camera);
+        renderer.autoClear = true;
+
+        if (IS_SOFTWARE_GL) afterDraw(renderer, tick, (id) => { frameId = id; });
+        else frameId = requestAnimationFrame(tick);
+      }
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            triggerLiquidReveal();
+            if (!isVisible) { isVisible = true; clock.getDelta(); tick(); }
+          } else {
+            isVisible = false;
+            cancelAnimationFrame(frameId);
+            clearTimeout(frameId);
+          }
+        },
+        { threshold: 0.02 }
+      );
+      io.observe(section);
+    }
+
+    // =========================================================================
+    // 7. SECTION 3 — ANNEAU CYLINDRIQUE 3D CONTINU + ANIMATION D'ENTRÉE DU COIN
+    // =========================================================================
+    function initProjectsCylinderRing() {
+      const section = document.getElementById("projets");
+      const panel = document.getElementById("ring-panel");
+      const atmo = document.getElementById("ring-atmo");
+      const cylinder = document.getElementById("ring-cylinder");
+      const filterButtons = Array.from(document.querySelectorAll(".filter-kw"));
+      const filterResetBtn = document.getElementById("ring-filter-reset");
+      const activeFilterTag = document.getElementById("ring-active-filter");
+
+      const CARD_COUNT = 16;
+      const RADIUS = 1450;
+      const STEP_DEG = 360 / CARD_COUNT;
+
+      const FILTER_MATCHERS = {
+        urbanisme: (p) => p.category === "Urbanisme" || p.category === "Faisabilité",
+        etude: (p) => p.category === "Étude Urbaine" || p.category === "Gestion Immobilière",
+        architecture: (p) => p.category === "Architecture 3D",
+        sig: (p) => p.category === "Cartographie & SIG",
+      };
+
+      const FILTER_LABELS = {
+        urbanisme: "FILTRE // URBANISME & FAISABILITÉ",
+        etude: "FILTRE // ÉTUDE URBAINE & IMMOBILIER",
+        architecture: "FILTRE // ARCHITECTURE 3D",
+        sig: "FILTRE // CARTOGRAPHIE & SIG",
+      };
+
+      let lockedFilter = null;
+      let hoveredFilter = null;
+
+      // Build 16 landscape 16:9 cyclic cards fed from PROJECTS
+      const cards = [];
+      for (let i = 0; i < CARD_COUNT; i++) {
+        const project = PROJECTS[i % PROJECTS.length];
+        const pass = Math.floor(i / PROJECTS.length);
+        const primaryUrl = pass === 0
+          ? project.cover
+          : (project.angles[2] || project.angles[1] || project.cover);
+        const secondaryUrl = pass === 0
+          ? (project.angles[1] || project.cover)
+          : (project.angles[3] || project.angles[0] || project.cover);
+
+        const cardEl = document.createElement("article");
+        cardEl.className = "ring-card";
+        cardEl.tabIndex = 0;
+        cardEl.setAttribute("role", "button");
+        cardEl.setAttribute("aria-label", `Ouvrir l'étude ${project.title} — ${project.category}`);
+
+        const tiltEl = document.createElement("div");
+        tiltEl.className = "ring-card-tilt";
+
+        const innerEl = document.createElement("div");
+        innerEl.className = "ring-card-inner";
+
+        const imgA = document.createElement("img");
+        imgA.className = "ring-img ring-img-a";
+        imgA.src = primaryUrl;
+        imgA.alt = `${project.title} — Vue principale`;
+        imgA.loading = "eager";
+        imgA.decoding = "async";
+        imgA.draggable = false;
+        imgA.referrerPolicy = "no-referrer";
+
+        const imgB = document.createElement("img");
+        imgB.className = "ring-img ring-img-b";
+        imgB.src = secondaryUrl;
+        imgB.alt = `${project.title} — Second angle`;
+        imgB.loading = "lazy";
+        imgB.decoding = "async";
+        imgB.draggable = false;
+        imgB.referrerPolicy = "no-referrer";
+
+        const chip = document.createElement("div");
+        chip.className = "ring-chip tabular";
+        chip.innerHTML = `<span class="ring-chip-dot" aria-hidden="true"></span><span>N° ${String(i + 1).padStart(2, "0")}</span>`;
+
+        const bar = document.createElement("div");
+        bar.className = "ring-card-bar";
+        bar.innerHTML = `
+          <div>
+            <div class="ring-bar-cat">${project.category}</div>
+            <div class="ring-bar-title">${project.title}</div>
+          </div>
+          <span class="ring-bar-arrow" aria-hidden="true">↗</span>
+        `;
+
+        innerEl.appendChild(imgA);
+        innerEl.appendChild(imgB);
+        innerEl.appendChild(chip);
+        innerEl.appendChild(bar);
+        tiltEl.appendChild(innerEl);
+        cardEl.appendChild(tiltEl);
+        cylinder.appendChild(cardEl);
+
+        const rec = {
+          index: i,
+          project,
+          baseAngle: i * STEP_DEG,
+          el: cardEl,
+          tiltEl,
+          progress: REDUCED_MOTION ? 1 : 0,
+        };
+
+        // Per-card hover slowdown + 3D cursor tilt + #1E86AC glow
+        cardEl.addEventListener("pointerenter", () => {
+          if (IS_TOUCH) return;
+          hoveredCard = rec;
+          cardEl.classList.add("is-hovered");
+        });
+
+        cardEl.addEventListener("pointermove", (e) => {
+          if (IS_TOUCH || isDragging) return;
+          const r = cardEl.getBoundingClientRect();
+          const nx = ((e.clientX - r.left) / Math.max(1, r.width)) * 2 - 1;
+          const ny = ((e.clientY - r.top) / Math.max(1, r.height)) * 2 - 1;
+          const rx = -ny * 9;
+          const ry = nx * 11;
+          tiltEl.style.transform = `translateZ(45px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+        });
+
+        cardEl.addEventListener("pointerleave", () => {
+          if (hoveredCard === rec) hoveredCard = null;
+          cardEl.classList.remove("is-hovered");
+          tiltEl.style.transform = "translateZ(0px) rotateX(0deg) rotateY(0deg)";
+        });
+
+        cardEl.addEventListener("click", (e) => {
+          if (dragMoved > 8) {
+            e.preventDefault();
+            return;
+          }
+          openProjectPage(project.id);
+        });
+
+        cardEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openProjectPage(project.id);
+          }
+        });
+
+        cards.push(rec);
+      }
+
+      // Editorial keyword filter sync
+      function applyFilterVisuals() {
+        const activeKey = hoveredFilter || lockedFilter;
+        const matcher = activeKey ? FILTER_MATCHERS[activeKey] : null;
+        cards.forEach((rec) => {
+          const match = !matcher || matcher(rec.project);
+          rec.el.classList.toggle("is-dimmed", !match);
+        });
+        filterButtons.forEach((btn) => {
+          btn.classList.toggle("is-active", btn.dataset.filterCat === lockedFilter);
+        });
+        filterResetBtn.hidden = !lockedFilter;
+        activeFilterTag.textContent = activeKey ? FILTER_LABELS[activeKey] : "TOUTES LES EXPERTISES";
+      }
+
+      filterButtons.forEach((btn) => {
+        const cat = btn.dataset.filterCat;
+        btn.addEventListener("pointerenter", () => {
+          if (IS_TOUCH) return;
+          hoveredFilter = cat;
+          applyFilterVisuals();
+        });
+        btn.addEventListener("pointerleave", () => {
+          if (hoveredFilter === cat) hoveredFilter = null;
+          applyFilterVisuals();
+        });
+        btn.addEventListener("click", () => {
+          lockedFilter = lockedFilter === cat ? null : cat;
+          hoveredFilter = null;
+          applyFilterVisuals();
+        });
+      });
+
+      filterResetBtn.addEventListener("click", () => {
+        lockedFilter = null;
+        hoveredFilter = null;
+        applyFilterVisuals();
+      });
+
+      // Atmosphere cursor parallax
+      const moveAtmoX = gsap.quickTo(atmo, "x", { duration: 0.7, ease: "power3.out" });
+      const moveAtmoY = gsap.quickTo(atmo, "y", { duration: 0.7, ease: "power3.out" });
+      if (!IS_TOUCH && !REDUCED_MOTION) {
+        panel.addEventListener("pointermove", (e) => {
+          const r = panel.getBoundingClientRect();
+          const nx = ((e.clientX - r.left) / Math.max(1, r.width)) - 0.5;
+          const ny = ((e.clientY - r.top) / Math.max(1, r.height)) - 0.5;
+          moveAtmoX(-nx * 28);
+          moveAtmoY(-ny * 20);
+        }, { passive: true });
+      }
+
+      // Cylinder Rotation, Drag & Horizontal Wheel Physics
+      let ringAngle = 0;
+      let angularVel = 0;
+      let speedMult = 1;
+      let hoveredCard = null;
+      let isDragging = false;
+      let dragStartX = 0;
+      let dragLastX = 0;
+      let dragMoved = 0;
+      let hasEntered = REDUCED_MOTION;
+      let rotationReady = REDUCED_MOTION;
+
+      panel.addEventListener("pointerdown", (e) => {
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragLastX = e.clientX;
+        dragMoved = 0;
+        panel.classList.add("is-dragging");
+      });
+
+      window.addEventListener("pointermove", (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragLastX;
+        dragLastX = e.clientX;
+        dragMoved += Math.abs(dx);
+        const deltaDeg = dx * 0.14;
+        ringAngle += deltaDeg;
+        angularVel = deltaDeg * 0.85;
+      }, { passive: true });
+
+      window.addEventListener("pointerup", () => {
+        if (!isDragging) return;
+        isDragging = false;
+        panel.classList.remove("is-dragging");
+      });
+
+      panel.addEventListener("wheel", (e) => {
+        const horizIntent = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
+        if (!horizIntent) return;
+        e.preventDefault();
+        const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        angularVel -= raw * 0.018;
+      }, { passive: false });
+
+      // Position cards on 3D cylinder or along curved bottom-right corner entrance path
+      function layoutCards() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        // Center cylinder so front cards sit slightly proud of z=0 with crisp perspective depth
+        cylinder.style.transform = `translateZ(${-RADIUS + 70}px)`;
+
+        for (let i = 0; i < cards.length; i++) {
+          const rec = cards[i];
+          const p = rec.progress;
+          const worldAngle = rec.baseAngle + ringAngle;
+
+          if (p >= 0.999) {
+            // Normalize angle to [-180, 180] to gently attenuate far-back hemisphere cards
+            let norm = ((worldAngle % 360) + 540) % 360 - 180;
+            const rad = (norm * Math.PI) / 180;
+            const depthFacing = Math.cos(rad);
+            const visOpacity = depthFacing < -0.15 ? 0 : Math.min(1, (depthFacing + 0.15) * 1.45);
+            rec.el.style.transform = `rotateY(${worldAngle.toFixed(3)}deg) translateZ(${RADIUS}px)`;
+            rec.el.style.opacity = visOpacity.toFixed(3);
+            rec.el.style.pointerEvents = depthFacing > 0.18 ? "auto" : "none";
+          } else {
+            // Curved corner-entrance trajectory from bottom-right (90vw, 45vh, -600px, -28deg, 0.35)
+            const inv = 1 - p;
+            const arcLift = Math.sin(p * Math.PI);
+            const targetRad = (worldAngle * Math.PI) / 180;
+            const targetX = Math.sin(targetRad) * RADIUS;
+            const targetZ = Math.cos(targetRad) * RADIUS;
+
+            const startX = vw * 0.9;
+            const startY = vh * 0.45;
+            const startZ = -600;
+
+            const x = startX * inv + targetX * p - arcLift * vw * 0.16;
+            const y = startY * inv - arcLift * vh * 0.14;
+            const z = startZ * inv + targetZ * p + arcLift * 180;
+            const rotY = worldAngle * p;
+            const rotZ = -28 * inv - arcLift * 6;
+            const sc = 0.35 + 0.65 * p;
+
+            rec.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${rotY.toFixed(2)}deg) rotateZ(${rotZ.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+            rec.el.style.opacity = Math.min(1, p * 1.35).toFixed(3);
+            rec.el.style.pointerEvents = "none";
+          }
+        }
+      }
+
+      // Corner-entrance ScrollTrigger cascade (runs once when #projets enters viewport)
+      if (!REDUCED_MOTION) {
+        layoutCards();
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top 78%",
+          once: true,
+          onEnter: () => {
+            if (hasEntered) return;
+            hasEntered = true;
+            const tl = gsap.timeline({
+              onComplete: () => {
+                rotationReady = true;
+              },
+            });
+            cards.forEach((rec, i) => {
+              tl.to(
+                rec,
+                {
+                  progress: 1,
+                  duration: 1.7,
+                  ease: "power3.out",
+                },
+                i * 0.045
+              );
+            });
+            // Begin soft rotation slightly before the tail cards finish landing
+            window.setTimeout(() => { rotationReady = true; }, 1150);
+          },
+        });
+      } else {
+        layoutCards();
+      }
+
+      // Animation loop paused when offscreen or inside #view-project
+      let isVisible = false;
+      let rafId = 0;
+      let lastTime = performance.now();
+
+      function tick(now) {
+        if (!isVisible) return;
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+
+        if (!viewProject.hidden) {
+          rafId = requestAnimationFrame(tick);
+          return;
+        }
+
+        const targetMult = hoveredCard ? 0.14 : 1;
+        speedMult += (targetMult - speedMult) * Math.min(1, dt * 6);
+
+        if (rotationReady && !isDragging && !REDUCED_MOTION) {
+          // 0.3 deg per 60fps frame
+          ringAngle -= 0.3 * (dt * 60) * speedMult;
+        }
+
+        if (!isDragging && Math.abs(angularVel) > 0.001) {
+          ringAngle += angularVel * (dt * 60);
+          angularVel *= Math.pow(0.92, dt * 60);
+        } else if (!isDragging) {
+          angularVel = 0;
+        }
+
+        layoutCards();
+        rafId = requestAnimationFrame(tick);
+      }
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            if (!isVisible) {
+              isVisible = true;
+              lastTime = performance.now();
+              rafId = requestAnimationFrame(tick);
+            }
+          } else {
+            isVisible = false;
+            cancelAnimationFrame(rafId);
+          }
+        },
+        { threshold: 0.01 }
+      );
+      io.observe(section);
+      window.addEventListener("resize", layoutCards);
+    }
+
+    // =========================================================================
+    // 7B. SECTION 4 — CONTACT INTERACTIF & GÉNÉRATEUR DE BRIEF WHATSAPP
+    // =========================================================================
+    function initContactBrief() {
+      const typeInput = document.getElementById("brief-type");
+      const locInput = document.getElementById("brief-location");
+      const radioButtons = Array.from(document.querySelectorAll(".timeline-radio"));
+      const waBtn = document.getElementById("brief-wa-btn");
+      const copyBtn = document.getElementById("brief-copy-btn");
+
+      let selectedTimeline = "immédiat";
+      let copyTimer = null;
+
+      function fitInputWidth(input) {
+        const measure = input.previousElementSibling;
+        if (!measure) return;
+        measure.textContent = input.value || input.placeholder || "";
+        const w = Math.max(120, Math.min(measure.offsetWidth + 14, Math.min(window.innerWidth * 0.86, 560)));
+        input.style.width = `${w}px`;
+      }
+
+      function buildBriefMessage() {
+        const projectType = (typeInput.value || typeInput.placeholder).trim();
+        const location = (locInput.value || locInput.placeholder).trim();
+        return `Bonjour Marc Urban Lab, je souhaite lancer ${projectType} pour un terrain situé à ${location}, avec un démarrage ${selectedTimeline}.`;
+      }
+
+      function syncBrief() {
+        fitInputWidth(typeInput);
+        fitInputWidth(locInput);
+        const msg = buildBriefMessage();
+        waBtn.href = `https://wa.me/237651763753?text=${encodeURIComponent(msg)}`;
+      }
+
+      [typeInput, locInput].forEach((inp) => {
+        inp.addEventListener("input", syncBrief);
+      });
+
+      radioButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectedTimeline = btn.dataset.timeline;
+          radioButtons.forEach((b) => {
+            const active = b === btn;
+            b.classList.toggle("is-selected", active);
+            b.setAttribute("aria-checked", String(active));
+          });
+          syncBrief();
+        });
+      });
+
+      // Magnetic hover effect on primary WhatsApp button
+      if (!IS_TOUCH && !REDUCED_MOTION) {
+        const magX = gsap.quickTo(waBtn, "x", { duration: 0.35, ease: "power3.out" });
+        const magY = gsap.quickTo(waBtn, "y", { duration: 0.35, ease: "power3.out" });
+        waBtn.addEventListener("pointermove", (e) => {
+          const r = waBtn.getBoundingClientRect();
+          const dx = e.clientX - (r.left + r.width * 0.5);
+          const dy = e.clientY - (r.top + r.height * 0.5);
+          magX(dx * 0.22);
+          magY(dy * 0.26);
+        });
+        waBtn.addEventListener("pointerleave", () => {
+          magX(0);
+          magY(0);
+        });
+      }
+
+      // Copy brief button with clean visual feedback
+      copyBtn.addEventListener("click", async () => {
+        const text = buildBriefMessage();
+        let copied = false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            copied = true;
+          }
+        } catch {
+          copied = false;
+        }
+        if (!copied) {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand("copy"); } catch {}
+          document.body.removeChild(ta);
+        }
+        copyBtn.textContent = "Brief copié";
+        copyBtn.classList.add("is-copied");
+        clearTimeout(copyTimer);
+        copyTimer = window.setTimeout(() => {
+          copyBtn.textContent = "Copier le brief";
+          copyBtn.classList.remove("is-copied");
+        }, 2200);
+      });
+
+      document.fonts.ready.then(syncBrief);
+      window.addEventListener("resize", syncBrief);
+      syncBrief();
+
+      return {
+        prefillType(value) {
+          typeInput.value = value;
+          syncBrief();
+          window.setTimeout(() => {
+            typeInput.focus({ preventScroll: true });
+            typeInput.select();
+          }, 420);
+        },
+      };
+    }
+
+    // =========================================================================
+    // 8. BOOTSTRAP & KEYBOARD HANDLERS
+    // =========================================================================
+    const heroApi = initHeroSphere();
+    initCabinetView();
+    initProjectsCylinderRing();
+    contactBriefApi = initContactBrief();
+
+    // Open direct #projet/<slug> deep link if present on initial load
+    if (window.location.hash.startsWith("#projet/")) {
+      syncRouteFromHash();
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (!viewProject.hidden) {
+          closeProjectPage("projets");
+          return;
+        }
+        heroApi.closePreview();
+        closeDockMenu();
+      }
+    });
+  </script>
+</body>
+</html>

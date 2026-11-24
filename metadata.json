@@ -1,0 +1,6 @@
+{
+  "name": "MARC URBAN LAB",
+  "description": "Cabinet d'urbanisme, d'architecture 3D, de cartographie SIG et de gestion de projets immobiliers — Concevoir les territoires de demain.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
