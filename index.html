@@ -88,6 +88,35 @@
       background-repeat: repeat;
     }
 
+    /* Architectural top scroll progress hairline */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--teal) 0%, #3aa3c7 100%);
+      transform-origin: left center;
+      transform: scaleX(0);
+      z-index: 88;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .hero-scroll-cue {
+      animation: heroCueFloat 2.6s ease-in-out infinite;
+    }
+
+    @keyframes heroCueFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-scroll-cue { animation: none; }
+      #scroll-progress { display: none; }
+    }
+
     #view-home {
       transition: opacity 0.4s var(--ease);
     }
@@ -1820,6 +1849,7 @@
   </style>
 </head>
 <body>
+  <div id="scroll-progress" aria-hidden="true"></div>
   <div id="paper-grain" aria-hidden="true"></div>
 
   <main id="view-home">
@@ -1940,7 +1970,7 @@
     <div id="ring-panel" aria-label="Anneau 3D interactif des projets Marc Urban Lab">
       <div id="ring-atmo" aria-hidden="true"></div>
       <div class="ring-hud-top" aria-hidden="true">
-        <span class="ring-hud-tag tabular">CYLINDRE 3D // 16 PLANS</span>
+        <span class="ring-hud-tag tabular">CYLINDRE 3D // 24 PLANS</span>
         <span class="ring-hud-tag tabular" id="ring-active-filter">TOUTES LES EXPERTISES</span>
       </div>
       <div id="ring-stage">
@@ -2703,6 +2733,137 @@
     let activeProjectId = null;
     let isViewTransitioning = false;
     let contactBriefApi = null;
+    let projectScrollTriggers = [];
+
+    function clearProjectScrollTriggers() {
+      projectScrollTriggers.forEach((st) => st.kill());
+      projectScrollTriggers = [];
+    }
+
+    function initProjectPageScrollAnimations() {
+      clearProjectScrollTriggers();
+      if (REDUCED_MOTION) return;
+
+      // Staggered architectural entrance for project header
+      const headerTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      headerTl
+        .fromTo("#pv-page-index-cat", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65 })
+        .fromTo("#pv-page-title", { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85 }, "-=0.45")
+        .fromTo("#view-project .pv-meta-item", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, stagger: 0.08 }, "-=0.55")
+        .fromTo("#pv-page-desc", { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, "-=0.45");
+
+      // Scroll-revealed editorial gallery frames with clip-path wipe + inner image parallax
+      const figures = Array.from(pvPageGallery.querySelectorAll(".pv-figure"));
+      figures.forEach((fig, idx) => {
+        const frame = fig.querySelector(".pv-img-frame");
+        const img = fig.querySelector("img");
+        const caption = fig.querySelector(".pv-figcaption");
+
+        if (idx === 0) {
+          gsap.fromTo(
+            frame,
+            { clipPath: "inset(8% 0% 0% 0% round 18px)", y: 28, opacity: 0 },
+            { clipPath: "inset(0% 0% 0% 0% round 18px)", y: 0, opacity: 1, duration: 1.0, delay: 0.25, ease: "power3.out", clearProps: "clipPath" }
+          );
+          if (img) {
+            gsap.fromTo(img, { scale: 1.09 }, { scale: 1.0, duration: 1.25, delay: 0.25, ease: "power3.out" });
+          }
+          if (caption) {
+            gsap.fromTo(caption, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, delay: 0.45, ease: "power2.out" });
+          }
+        } else {
+          const revealTween = gsap.fromTo(
+            frame,
+            { clipPath: "inset(10% 0% 0% 0% round 18px)", y: 42, opacity: 0 },
+            {
+              clipPath: "inset(0% 0% 0% 0% round 18px)",
+              y: 0,
+              opacity: 1,
+              duration: 0.95,
+              ease: "power3.out",
+              clearProps: "clipPath",
+              scrollTrigger: {
+                trigger: fig,
+                start: "top 86%",
+                once: true,
+              },
+            }
+          );
+          if (revealTween.scrollTrigger) projectScrollTriggers.push(revealTween.scrollTrigger);
+
+          if (caption) {
+            const capTween = gsap.fromTo(
+              caption,
+              { y: 14, opacity: 0 },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.65,
+                delay: 0.14,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: fig,
+                  start: "top 86%",
+                  once: true,
+                },
+              }
+            );
+            if (capTween.scrollTrigger) projectScrollTriggers.push(capTween.scrollTrigger);
+          }
+        }
+
+        // Gentle scrubbed vertical micro-parallax inside each 16:9 image frame
+        if (img && frame) {
+          const parallaxTween = gsap.fromTo(
+            img,
+            { yPercent: -4, scale: 1.08 },
+            {
+              yPercent: 4,
+              scale: 1.08,
+              ease: "none",
+              scrollTrigger: {
+                trigger: frame,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.6,
+              },
+            }
+          );
+          if (parallaxTween.scrollTrigger) projectScrollTriggers.push(parallaxTween.scrollTrigger);
+        }
+      });
+
+      // Next-project footer card reveal
+      const nextTween = gsap.fromTo(
+        "#pv-next-btn",
+        { y: 36, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.85,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: "#pv-next-btn",
+            start: "top 90%",
+            once: true,
+          },
+        }
+      );
+      if (nextTween.scrollTrigger) projectScrollTriggers.push(nextTween.scrollTrigger);
+
+      // Update reading progress bar across the project page
+      const progTrigger = ScrollTrigger.create({
+        trigger: "#view-project",
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: (self) => {
+          const bar = document.getElementById("scroll-progress");
+          if (bar) bar.style.transform = `scaleX(${self.progress.toFixed(4)})`;
+        },
+      });
+      projectScrollTriggers.push(progTrigger);
+      ScrollTrigger.refresh();
+    }
 
     const TECHNICAL_CAPTIONS = {
       Urbanisme: [
@@ -2852,7 +3013,10 @@
         window.setTimeout(() => {
           renderProjectPageContent(project);
           window.scrollTo({ top: 0, behavior: "auto" });
-          requestAnimationFrame(() => viewProject.classList.add("is-visible"));
+          requestAnimationFrame(() => {
+            viewProject.classList.add("is-visible");
+            initProjectPageScrollAnimations();
+          });
         }, REDUCED_MOTION ? 0 : 240);
         return;
       }
@@ -2867,6 +3031,7 @@
         window.scrollTo({ top: 0, behavior: "auto" });
         requestAnimationFrame(() => {
           viewProject.classList.add("is-visible");
+          initProjectPageScrollAnimations();
           isViewTransitioning = false;
         });
       }, REDUCED_MOTION ? 0 : 380);
@@ -2876,6 +3041,7 @@
       if (viewProject.hidden) return;
       isViewTransitioning = true;
       activeProjectId = null;
+      clearProjectScrollTriggers();
 
       if (!fromHash && window.location.hash.startsWith("#projet/")) {
         window.history.pushState(null, "", scrollTargetId ? `#${scrollTargetId}` : "#projets");
@@ -3325,6 +3491,21 @@
       let isVisible = true;
       let frameId = 0;
       const clock = new THREE.Clock();
+      let scrollSpinY = 0;
+      let scrollTiltX = 0;
+
+      if (!REDUCED_MOTION) {
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.6,
+          onUpdate: (self) => {
+            scrollSpinY = self.progress * 0.95;
+            scrollTiltX = self.progress * 0.28;
+          },
+        });
+      }
 
       function tick() {
         if (!isVisible) return;
@@ -3339,8 +3520,8 @@
           rotX = THREE.MathUtils.clamp(rotX + rotVelX, -0.95, 0.95);
         }
 
-        sphereGroup.rotation.y = THREE.MathUtils.damp(sphereGroup.rotation.y, rotY, 8, dt);
-        sphereGroup.rotation.x = THREE.MathUtils.damp(sphereGroup.rotation.x, rotX, 8, dt);
+        sphereGroup.rotation.y = THREE.MathUtils.damp(sphereGroup.rotation.y, rotY + scrollSpinY, 8, dt);
+        sphereGroup.rotation.x = THREE.MathUtils.damp(sphereGroup.rotation.x, rotX + scrollTiltX, 8, dt);
 
         for (let i = 0; i < planes.length; i++) {
           const m = planes[i];
@@ -4016,7 +4197,27 @@
       let frameId = 0;
       let nextBlinkAt = 3.2;
       let blinkT = 0;
+      let scrollHeadY = 0;
+      let lastCabinetScrollP = 0;
       const clock = new THREE.Clock();
+
+      if (!REDUCED_MOTION) {
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.7,
+          onUpdate: (self) => {
+            const p = self.progress;
+            scrollHeadY = (0.5 - p) * 0.72;
+            const dp = p - lastCabinetScrollP;
+            lastCabinetScrollP = p;
+            if (!dragging) {
+              trackOffset += dp * 6.5;
+            }
+          },
+        });
+      }
 
       function tick() {
         if (!isVisible) return;
@@ -4067,8 +4268,13 @@
           item.mesh.position.y = item.curY;
         }
 
-        // 3D Chrome Head motion
-        headRoot.position.y = Math.sin(t * 1.4) * 0.08;
+        // 3D Chrome Head motion + gentle vertical scroll parallax
+        headRoot.position.y = THREE.MathUtils.damp(
+          headRoot.position.y,
+          Math.sin(t * 1.4) * 0.08 + scrollHeadY,
+          7,
+          dt
+        );
         const sleepPitch = isSleeping ? 0.24 : targetPitch;
         const sleepYaw = isSleeping ? Math.sin(t * 0.6) * 0.14 : targetYaw;
         headPivot.rotation.y = THREE.MathUtils.damp(headPivot.rotation.y, sleepYaw, 6, dt);
@@ -4145,8 +4351,8 @@
       const filterResetBtn = document.getElementById("ring-filter-reset");
       const activeFilterTag = document.getElementById("ring-active-filter");
 
-      const CARD_COUNT = 16;
-      const RADIUS = 1450;
+      const CARD_COUNT = 24;
+      const RADIUS = 1280;
       const STEP_DEG = 360 / CARD_COUNT;
 
       const FILTER_MATCHERS = {
@@ -4166,17 +4372,16 @@
       let lockedFilter = null;
       let hoveredFilter = null;
 
-      // Build 16 landscape 16:9 cyclic cards fed from PROJECTS
+      // Build 24 landscape 16:9 cyclic cards (5 clearly framed side-by-side)
       const cards = [];
       for (let i = 0; i < CARD_COUNT; i++) {
         const project = PROJECTS[i % PROJECTS.length];
         const pass = Math.floor(i / PROJECTS.length);
+        const angleCount = project.angles.length;
         const primaryUrl = pass === 0
           ? project.cover
-          : (project.angles[2] || project.angles[1] || project.cover);
-        const secondaryUrl = pass === 0
-          ? (project.angles[1] || project.cover)
-          : (project.angles[3] || project.angles[0] || project.cover);
+          : project.angles[(pass * 2) % angleCount] || project.cover;
+        const secondaryUrl = project.angles[(pass * 2 + 1) % angleCount] || project.cover;
 
         const cardEl = document.createElement("article");
         cardEl.className = "ring-card";
@@ -4357,9 +4562,10 @@
         const dx = e.clientX - dragLastX;
         dragLastX = e.clientX;
         dragMoved += Math.abs(dx);
-        const deltaDeg = dx * 0.14;
+        // 1:1 tactile drag matched to cylinder radius (1450px)
+        const deltaDeg = dx * 0.042;
         ringAngle += deltaDeg;
-        angularVel = deltaDeg * 0.85;
+        angularVel = THREE.MathUtils.clamp(deltaDeg * 0.45, -0.55, 0.55);
       }, { passive: true });
 
       window.addEventListener("pointerup", () => {
@@ -4373,15 +4579,15 @@
         if (!horizIntent) return;
         e.preventDefault();
         const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-        angularVel -= raw * 0.018;
+        angularVel = THREE.MathUtils.clamp(angularVel - raw * 0.0045, -0.65, 0.65);
       }, { passive: false });
 
       // Position cards on 3D cylinder or along curved bottom-right corner entrance path
       function layoutCards() {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        // Center cylinder so front cards sit slightly proud of z=0 with crisp perspective depth
-        cylinder.style.transform = `translateZ(${-RADIUS + 70}px)`;
+        // Frame 5 tightly spaced 16:9 cards side-by-side across the front arc
+        cylinder.style.transform = `translateZ(${-RADIUS - 130}px)`;
 
         for (let i = 0; i < cards.length; i++) {
           const rec = cards[i];
@@ -4389,14 +4595,14 @@
           const worldAngle = rec.baseAngle + ringAngle;
 
           if (p >= 0.999) {
-            // Normalize angle to [-180, 180] to gently attenuate far-back hemisphere cards
+            // Keep the 5 front-arc cards crisp and smoothly fade peripheral/back hemisphere cards
             let norm = ((worldAngle % 360) + 540) % 360 - 180;
             const rad = (norm * Math.PI) / 180;
             const depthFacing = Math.cos(rad);
-            const visOpacity = depthFacing < -0.15 ? 0 : Math.min(1, (depthFacing + 0.15) * 1.45);
+            const visOpacity = depthFacing < 0.5 ? 0 : Math.min(1, (depthFacing - 0.5) / 0.28);
             rec.el.style.transform = `rotateY(${worldAngle.toFixed(3)}deg) translateZ(${RADIUS}px)`;
             rec.el.style.opacity = visOpacity.toFixed(3);
-            rec.el.style.pointerEvents = depthFacing > 0.18 ? "auto" : "none";
+            rec.el.style.pointerEvents = depthFacing > 0.65 ? "auto" : "none";
           } else {
             // Curved corner-entrance trajectory from bottom-right (90vw, 45vh, -600px, -28deg, 0.35)
             const inv = 1 - p;
@@ -4446,7 +4652,7 @@
                   duration: 1.7,
                   ease: "power3.out",
                 },
-                i * 0.045
+                i * 0.032
               );
             });
             // Begin soft rotation slightly before the tail cards finish landing
@@ -4472,17 +4678,17 @@
           return;
         }
 
-        const targetMult = hoveredCard ? 0.14 : 1;
+        const targetMult = hoveredCard ? 0 : 1;
         speedMult += (targetMult - speedMult) * Math.min(1, dt * 6);
 
         if (rotationReady && !isDragging && !REDUCED_MOTION) {
-          // 0.3 deg per 60fps frame
-          ringAngle -= 0.3 * (dt * 60) * speedMult;
+          // Ultra-slow contemplative drift (~0.018 deg/frame => ~27 px/s at R=1450px)
+          ringAngle -= 0.018 * (dt * 60) * speedMult;
         }
 
-        if (!isDragging && Math.abs(angularVel) > 0.001) {
+        if (!isDragging && Math.abs(angularVel) > 0.0008) {
           ringAngle += angularVel * (dt * 60);
-          angularVel *= Math.pow(0.92, dt * 60);
+          angularVel *= Math.pow(0.9, dt * 60);
         } else if (!isDragging) {
           angularVel = 0;
         }
@@ -4625,12 +4831,268 @@
     }
 
     // =========================================================================
+    // 7C. CHORÉGRAPHIE SCROLL GLOBALE (GSAP + SCROLLTRIGGER)
+    // =========================================================================
+    function initScrollChoreography() {
+      if (REDUCED_MOTION) return;
+
+      const progressBar = document.getElementById("scroll-progress");
+
+      // 1. Top architectural scroll progress hairline across #view-home
+      ScrollTrigger.create({
+        trigger: "#view-home",
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: (self) => {
+          if (progressBar && viewProject.hidden) {
+            progressBar.style.transform = `scaleX(${self.progress.toFixed(4)})`;
+          }
+        },
+      });
+
+      // 2. Hero Editorial Entrance + Scroll-Out Parallax
+      gsap.from(".hero-top .brand-lockup, .hero-top .hero-kicker", {
+        y: -16,
+        opacity: 0,
+        duration: 0.85,
+        stagger: 0.1,
+        delay: 0.25,
+        ease: "power3.out",
+      });
+
+      gsap.from(".hero-headline, .hero-sub, .hero-scroll-cue", {
+        y: 28,
+        opacity: 0,
+        duration: 0.95,
+        stagger: 0.12,
+        delay: 1.85,
+        ease: "power3.out",
+      });
+
+      gsap.to(".hero-editorial", {
+        y: -64,
+        opacity: 0.12,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+
+      gsap.to(".hero-scroll-cue", {
+        y: -26,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "35% top",
+          scrub: true,
+        },
+      });
+
+      gsap.to("#hero-canvas-mount", {
+        y: 64,
+        scale: 0.94,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+
+      // 3. Cabinet hint subtle reveal on scroll entry
+      gsap.from(".cabinet-hint", {
+        y: 18,
+        opacity: 0,
+        duration: 0.85,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "#cabinet",
+          start: "top 68%",
+          once: true,
+        },
+      });
+
+      // 4. Projets Editorial Header + Animated KPI Counters + Ring Panel Rise
+      const projTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#projets",
+          start: "top 82%",
+          once: true,
+        },
+      });
+
+      projTl
+        .from(".projets-kicker", {
+          y: 18,
+          opacity: 0,
+          duration: 0.65,
+          ease: "power3.out",
+        })
+        .from(
+          ".projets-editorial-sentence",
+          {
+            y: 34,
+            opacity: 0,
+            duration: 0.95,
+            ease: "power3.out",
+          },
+          "-=0.42"
+        )
+        .from(
+          ".projets-metric",
+          {
+            y: 26,
+            opacity: 0,
+            duration: 0.75,
+            stagger: 0.12,
+            ease: "power3.out",
+          },
+          "-=0.65"
+        )
+        .from(
+          "#ring-panel",
+          {
+            y: 44,
+            scale: 0.965,
+            opacity: 0,
+            duration: 1.05,
+            ease: "power3.out",
+          },
+          "-=0.58"
+        );
+
+      // Animate KPI counters smoothly (45+, 06, 100%)
+      const kpiTargets = [
+        { el: document.querySelectorAll(".projets-metric-val")[0], end: 45, format: (v) => `${Math.round(v)}+` },
+        { el: document.querySelectorAll(".projets-metric-val")[1], end: 6, format: (v) => String(Math.round(v)).padStart(2, "0") },
+        { el: document.querySelectorAll(".projets-metric-val")[2], end: 100, format: (v) => `${Math.round(v)}%` },
+      ];
+      ScrollTrigger.create({
+        trigger: ".projets-metrics",
+        start: "top 86%",
+        once: true,
+        onEnter: () => {
+          kpiTargets.forEach((item, idx) => {
+            if (!item.el) return;
+            const obj = { val: 0 };
+            gsap.to(obj, {
+              val: item.end,
+              duration: 1.35,
+              delay: idx * 0.12,
+              ease: "power3.out",
+              onUpdate: () => {
+                item.el.textContent = item.format(obj.val);
+              },
+            });
+          });
+        },
+      });
+
+      // Subtle scrubbed vertical depth on the 3D cylinder stage while scrolling past #projets
+      gsap.fromTo(
+        "#ring-stage",
+        { y: -20 },
+        {
+          y: 20,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#ring-panel",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.7,
+          },
+        }
+      );
+
+      // 5. Contact Interactive Section Staggered Editorial Reveal
+      const contactTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#contact",
+          start: "top 80%",
+          once: true,
+        },
+      });
+
+      contactTl
+        .from(".contact-kicker", {
+          y: 18,
+          opacity: 0,
+          duration: 0.65,
+          ease: "power3.out",
+        })
+        .from(
+          ".contact-sentence",
+          {
+            y: 36,
+            opacity: 0,
+            duration: 0.95,
+            ease: "power3.out",
+          },
+          "-=0.4"
+        )
+        .from(
+          ".timeline-radio",
+          {
+            y: 14,
+            scale: 0.92,
+            opacity: 0,
+            duration: 0.55,
+            stagger: 0.08,
+            ease: "back.out(1.4)",
+          },
+          "-=0.52"
+        )
+        .from(
+          ".contact-bottom",
+          {
+            y: 28,
+            opacity: 0,
+            duration: 0.8,
+            ease: "power3.out",
+          },
+          "-=0.35"
+        )
+        .from(
+          ".contact-coords > *",
+          {
+            y: 14,
+            opacity: 0,
+            duration: 0.55,
+            stagger: 0.08,
+            ease: "power2.out",
+          },
+          "-=0.55"
+        );
+
+      // 6. Footer Gentle Settling Reveal
+      gsap.from(".site-footer .footer-brand, .site-footer .footer-motto, .site-footer .footer-meta", {
+        y: 22,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".site-footer",
+          start: "top 92%",
+          once: true,
+        },
+      });
+    }
+
+    // =========================================================================
     // 8. BOOTSTRAP & KEYBOARD HANDLERS
     // =========================================================================
     const heroApi = initHeroSphere();
     initCabinetView();
     initProjectsCylinderRing();
     contactBriefApi = initContactBrief();
+    initScrollChoreography();
 
     // Open direct #projet/<slug> deep link if present on initial load
     if (window.location.hash.startsWith("#projet/")) {
