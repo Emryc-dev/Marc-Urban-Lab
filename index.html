@@ -942,8 +942,22 @@
       justify-content: center;
     }
 
+    .brand-logo-img {
+      display: block;
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      border-radius: 50%;
+      mix-blend-mode: multiply;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-img.is-footer { width: 42px; height: 42px; }
+    .brand-logo-img.is-dock { width: 28px; height: 28px; }
+    .brand-logo-img.is-topbar { width: 34px; height: 34px; }
+
     /* =========================================================================
-       6. SECTION 4 — CONTACT INTERACTIF (#contact)
+       6. SECTION 4 — CONTACT INTERACTIF & FORMULAIRE (#contact)
     ========================================================================= */
     #contact {
       position: relative;
@@ -952,9 +966,16 @@
     }
 
     .contact-shell {
-      max-width: 1180px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 110px 46px 90px;
+      padding: 108px 46px 96px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 56px;
+      align-items: start;
     }
 
     .contact-kicker {
@@ -963,17 +984,16 @@
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--teal);
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
 
     .contact-sentence {
       font-family: var(--serif);
       font-weight: 300;
-      font-size: clamp(26px, 3vw, 40px);
-      line-height: 1.58;
+      font-size: clamp(24px, 2.5vw, 35px);
+      line-height: 1.56;
       letter-spacing: -0.015em;
       color: var(--ink);
-      max-width: 34ch;
     }
 
     .inline-field-wrap {
@@ -996,7 +1016,7 @@
       border-bottom: 1.5px solid #8a8a86;
       padding: 0 4px 2px;
       min-width: 120px;
-      max-width: min(86vw, 560px);
+      max-width: min(86vw, 480px);
       outline: none;
       border-radius: 0;
       transition: border-color 0.22s var(--ease), color 0.22s var(--ease);
@@ -1035,14 +1055,14 @@
 
     .timeline-radio {
       font-family: var(--sans);
-      font-size: clamp(13px, 1.1vw, 15px);
+      font-size: 13.5px;
       font-weight: 500;
       letter-spacing: 0.01em;
       color: var(--ink);
       background: transparent;
       border: 1px solid rgba(17, 17, 19, 0.22);
       border-radius: 999px;
-      padding: 7px 16px;
+      padding: 6px 14px;
       cursor: pointer;
       transition: background 0.22s var(--ease), border-color 0.22s var(--ease), color 0.22s var(--ease), transform 0.22s var(--ease);
     }
@@ -1059,14 +1079,12 @@
     }
 
     .contact-bottom {
-      margin-top: 48px;
-      padding-top: 32px;
+      margin-top: 38px;
+      padding-top: 28px;
       border-top: 1px solid rgba(17, 17, 19, 0.08);
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 28px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 26px;
     }
 
     .contact-actions {
@@ -1081,8 +1099,8 @@
       align-items: center;
       justify-content: center;
       gap: 9px;
-      height: 50px;
-      padding: 0 26px;
+      height: 48px;
+      padding: 0 24px;
       border-radius: 999px;
       background: var(--teal);
       color: #ffffff;
@@ -1105,8 +1123,8 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      height: 50px;
-      padding: 0 22px;
+      height: 48px;
+      padding: 0 20px;
       border-radius: 999px;
       background: transparent;
       border: 1px solid rgba(17, 17, 19, 0.2);
@@ -1132,9 +1150,9 @@
     .contact-coords {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: flex-start;
       gap: 5px;
-      text-align: right;
+      text-align: left;
     }
 
     .contact-phone-row {
@@ -1181,6 +1199,209 @@
       text-transform: uppercase;
       color: rgba(17, 17, 19, 0.52);
     }
+
+    /* Architectural Contact Form Card */
+    .contact-form-card {
+      background: #ffffff;
+      border: 1px solid rgba(17, 17, 19, 0.09);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 22px 54px rgba(17, 17, 19, 0.05);
+    }
+
+    .cf-head {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(17, 17, 19, 0.08);
+    }
+
+    .cf-kicker {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    .cf-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 26px;
+      line-height: 1.18;
+      color: var(--ink);
+    }
+
+    .cf-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .cf-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .cf-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .cf-label {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    .cf-input,
+    .cf-select,
+    .cf-textarea {
+      width: 100%;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--ink);
+      background: #f8f8f6;
+      border: 1px solid rgba(17, 17, 19, 0.12);
+      border-radius: 10px;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+
+    .cf-input::placeholder,
+    .cf-textarea::placeholder {
+      color: rgba(17, 17, 19, 0.38);
+    }
+
+    .cf-input:focus,
+    .cf-select:focus,
+    .cf-textarea:focus {
+      background: #ffffff;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(30, 134, 172, 0.12);
+    }
+
+    .cf-textarea {
+      resize: vertical;
+      min-height: 92px;
+      line-height: 1.5;
+    }
+
+    .cf-error {
+      font-family: var(--sans);
+      font-size: 12.5px;
+      color: #b91c1c;
+      min-height: 18px;
+    }
+
+    .cf-submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding-top: 4px;
+    }
+
+    .cf-submit-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      height: 48px;
+      padding: 0 26px;
+      border-radius: 999px;
+      border: none;
+      background: var(--ink);
+      color: var(--bg);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.22s var(--ease), transform 0.22s var(--ease);
+    }
+
+    .cf-submit-btn:hover {
+      background: var(--teal);
+      transform: translateY(-1px);
+    }
+
+    .cf-note {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      color: var(--mute);
+    }
+
+    .cf-success {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 6px 0 2px;
+    }
+
+    .cf-success[hidden] { display: none; }
+
+    .cf-success-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(30, 134, 172, 0.1);
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .cf-success-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 26px;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .cf-success-summary {
+      background: #f8f8f6;
+      border: 1px solid rgba(17, 17, 19, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: var(--sans);
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: rgba(17, 17, 19, 0.82);
+      white-space: pre-line;
+    }
+
+    .cf-success-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cf-reset-btn {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--mute);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 6px 2px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .cf-reset-btn:hover { color: var(--ink); }
 
     /* =========================================================================
        6B. PAGE PROJET COMPLÈTE (#view-project — SANS MODALE NI LIGHTBOX)
@@ -1722,6 +1943,11 @@
         padding: 88px 28px 72px;
       }
 
+      .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
       .pv-header {
         padding: 108px 28px 40px;
       }
@@ -1788,6 +2014,14 @@
 
       .contact-shell {
         padding: 72px 20px 64px;
+      }
+
+      .contact-form-card {
+        padding: 24px 20px;
+      }
+
+      .cf-row {
+        grid-template-columns: 1fr;
       }
 
       .contact-coords {
@@ -1869,12 +2103,13 @@
     <div class="hero-chrome">
       <div class="hero-top">
         <a href="#hero" class="brand-lockup" aria-label="MARC URBAN LAB">
-          <!-- Monogramme géométrique MUL (traits condensés inspirés de TLQ) -->
-          <svg width="30" height="28" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" />
-            <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.1" stroke-linecap="round" />
-            <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.4" stroke-linecap="square" />
-          </svg>
+          <img
+            src="/assets/aistudio/Gemini_Generated_Image_a6rjf6a6rjf6a6rj_721b81e6.png"
+            alt="Logo MARC URBAN LAB"
+            class="brand-logo-img"
+            width="48"
+            height="48"
+          />
           <span class="brand-label">MARC URBAN LAB</span>
         </a>
         <div class="hero-kicker">URBANISME • ARCHITECTURE • SIG</div>
@@ -1983,69 +2218,150 @@
   </section>
 
   <!-- =========================================================================
-       SECTION 4 — CONTACT INTERACTIF (#contact)
+       SECTION 4 — CONTACT INTERACTIF & FORMULAIRE DE PROJET (#contact)
   ========================================================================= -->
   <section id="contact" aria-label="Démarrer une étude avec Marc Urban Lab">
     <div class="contact-shell">
-      <div class="contact-kicker">CONTACT // DÉMARRER UNE ÉTUDE</div>
+      <div class="contact-grid">
+        <div class="contact-editorial-col">
+          <div class="contact-kicker">CONTACT // DÉMARRER UNE ÉTUDE</div>
 
-      <div class="contact-sentence">
-        Bonjour Marc Urban Lab, je souhaite lancer
-        <span class="inline-field-wrap">
-          <span class="inline-measure" aria-hidden="true"></span>
-          <input
-            type="text"
-            id="brief-type"
-            class="inline-input"
-            value="un permis de bâtir / lotissement"
-            placeholder="un permis de bâtir / lotissement"
-            aria-label="Type de projet souhaité"
-          />
-        </span>
-        pour un terrain situé à
-        <span class="inline-field-wrap">
-          <span class="inline-measure" aria-hidden="true"></span>
-          <input
-            type="text"
-            id="brief-location"
-            class="inline-input"
-            value="Douala, Bonapriso"
-            placeholder="Douala, Bonapriso"
-            aria-label="Localisation du terrain"
-          />
-        </span>,
-        avec un démarrage
-        <span class="timeline-radios" role="radiogroup" aria-label="Horizon de démarrage">
-          <button type="button" class="timeline-radio is-selected" role="radio" aria-checked="true" data-timeline="immédiat">immédiat</button>
-          <button type="button" class="timeline-radio" role="radio" aria-checked="false" data-timeline="d'ici 1 mois">d'ici 1 mois</button>
-          <button type="button" class="timeline-radio" role="radio" aria-checked="false" data-timeline="à planifier">à planifier</button>
-        </span>.
-      </div>
+          <div class="contact-sentence">
+            Bonjour Marc Urban Lab, je souhaite lancer
+            <span class="inline-field-wrap">
+              <span class="inline-measure" aria-hidden="true"></span>
+              <input
+                type="text"
+                id="brief-type"
+                class="inline-input"
+                value="un permis de bâtir / lotissement"
+                placeholder="un permis de bâtir / lotissement"
+                aria-label="Type de projet souhaité"
+              />
+            </span>
+            pour un terrain situé à
+            <span class="inline-field-wrap">
+              <span class="inline-measure" aria-hidden="true"></span>
+              <input
+                type="text"
+                id="brief-location"
+                class="inline-input"
+                value="Douala, Bonapriso"
+                placeholder="Douala, Bonapriso"
+                aria-label="Localisation du terrain"
+              />
+            </span>,
+            avec un démarrage
+            <span class="timeline-radios" role="radiogroup" aria-label="Horizon de démarrage">
+              <button type="button" class="timeline-radio is-selected" role="radio" aria-checked="true" data-timeline="immédiat">immédiat</button>
+              <button type="button" class="timeline-radio" role="radio" aria-checked="false" data-timeline="d'ici 1 mois">d'ici 1 mois</button>
+              <button type="button" class="timeline-radio" role="radio" aria-checked="false" data-timeline="à planifier">à planifier</button>
+            </span>.
+          </div>
 
-      <div class="contact-bottom">
-        <div class="contact-actions">
-          <a
-            id="brief-wa-btn"
-            href="https://wa.me/237651763753"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn-wa-primary"
-          >
-            <span>Envoyer sur WhatsApp</span>
-            <span aria-hidden="true">↗</span>
-          </a>
-          <button type="button" id="brief-copy-btn" class="btn-brief-copy">
-            Copier le brief
-          </button>
+          <div class="contact-bottom">
+            <div class="contact-actions">
+              <a
+                id="brief-wa-btn"
+                href="https://wa.me/237651763753"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-wa-primary"
+              >
+                <span>Envoyer sur WhatsApp</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+              <button type="button" id="brief-copy-btn" class="btn-brief-copy">
+                Copier le brief
+              </button>
+            </div>
+
+            <div class="contact-coords">
+              <div class="contact-phone-row tabular">
+                <a href="tel:+237651763753">+237 651 763 753</a>
+                <a href="https://wa.me/237651763753" target="_blank" rel="noopener noreferrer" class="contact-phone-wa">WhatsApp ↗</a>
+              </div>
+              <div class="contact-place">Douala, Cameroun</div>
+              <div class="contact-pillars">Études • Réalisation • Suivi</div>
+            </div>
+          </div>
         </div>
 
-        <div class="contact-coords">
-          <div class="contact-phone-row tabular">
-            <a href="tel:+237651763753">+237 651 763 753</a>
-            <a href="https://wa.me/237651763753" target="_blank" rel="noopener noreferrer" class="contact-phone-wa">WhatsApp ↗</a>
+        <div class="contact-form-card">
+          <div class="cf-head">
+            <div class="cf-kicker">FORMULAIRE // RÉPONSE SOUS 24H</div>
+            <h3 class="cf-title">Décrivez votre projet</h3>
           </div>
-          <div class="contact-place">Douala, Cameroun</div>
-          <div class="contact-pillars">Études • Réalisation • Suivi</div>
+
+          <form id="contact-form" class="cf-form" novalidate>
+            <div class="cf-field">
+              <label class="cf-label" for="cf-name">Nom complet *</label>
+              <input type="text" id="cf-name" name="name" class="cf-input" placeholder="Ex. Jean-Marc Ndjock" required />
+            </div>
+
+            <div class="cf-row">
+              <div class="cf-field">
+                <label class="cf-label" for="cf-phone">Téléphone / WhatsApp *</label>
+                <input type="tel" id="cf-phone" name="phone" class="cf-input" placeholder="+237 6XX XXX XXX" required />
+              </div>
+              <div class="cf-field">
+                <label class="cf-label" for="cf-email">Adresse e-mail</label>
+                <input type="email" id="cf-email" name="email" class="cf-input" placeholder="nom@domaine.com" />
+              </div>
+            </div>
+
+            <div class="cf-field">
+              <label class="cf-label" for="cf-service">Type de prestation *</label>
+              <select id="cf-service" name="service" class="cf-select" required>
+                <option value="Étude Urbaine & Lotissement">Étude Urbaine &amp; Lotissement</option>
+                <option value="Architecture 2D/3D">Architecture 2D/3D</option>
+                <option value="Permis de Bâtir & Dossiers Administratifs" selected>Permis de Bâtir &amp; Dossiers Administratifs</option>
+                <option value="Cartographie & SIG">Cartographie &amp; SIG</option>
+                <option value="Étude de Faisabilité">Étude de Faisabilité</option>
+                <option value="Gestion & Suivi Immobilier">Gestion &amp; Suivi Immobilier</option>
+              </select>
+            </div>
+
+            <div class="cf-row">
+              <div class="cf-field">
+                <label class="cf-label" for="cf-location">Localisation du terrain</label>
+                <input type="text" id="cf-location" name="location" class="cf-input" placeholder="Douala, Bonapriso" />
+              </div>
+              <div class="cf-field">
+                <label class="cf-label" for="cf-surface">Superficie estimée</label>
+                <input type="text" id="cf-surface" name="surface" class="cf-input" placeholder="Ex. 1 200 m² / 2 Ha" />
+              </div>
+            </div>
+
+            <div class="cf-field">
+              <label class="cf-label" for="cf-message">Détails &amp; objectifs du projet *</label>
+              <textarea id="cf-message" name="message" class="cf-textarea" placeholder="Décrivez votre programme, les contraintes du site ou vos délais souhaités..." required></textarea>
+            </div>
+
+            <div id="cf-error" class="cf-error" role="alert" aria-live="polite"></div>
+
+            <div class="cf-submit-row">
+              <button type="submit" class="cf-submit-btn">
+                <span>Envoyer la demande</span>
+                <span aria-hidden="true">→</span>
+              </button>
+              <span class="cf-note">Confidentialité garantie</span>
+            </div>
+          </form>
+
+          <div id="cf-success" class="cf-success" hidden>
+            <span class="cf-success-badge">✓ Demande préparée</span>
+            <h4 class="cf-success-title">Merci, votre brief est prêt.</h4>
+            <div id="cf-success-summary" class="cf-success-summary"></div>
+            <div class="cf-success-actions">
+              <a id="cf-success-wa" href="https://wa.me/237651763753" target="_blank" rel="noopener noreferrer" class="btn-wa-primary">
+                <span>Transmettre sur WhatsApp</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+              <button type="button" id="cf-success-copy" class="btn-brief-copy">Copier le récapitulatif</button>
+            </div>
+            <button type="button" id="cf-reset-btn" class="cf-reset-btn">Modifier ou envoyer une autre demande</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2056,11 +2372,13 @@
   ========================================================================= -->
   <footer class="site-footer" role="contentinfo">
     <div class="footer-brand">
-      <svg width="26" height="24" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" />
-        <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.1" stroke-linecap="round" />
-        <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.4" stroke-linecap="square" />
-      </svg>
+      <img
+        src="/assets/aistudio/Gemini_Generated_Image_a6rjf6a6rjf6a6rj_721b81e6.png"
+        alt="Logo Marc Urban Lab"
+        class="brand-logo-img is-footer"
+        width="42"
+        height="42"
+      />
       <span>Marc Urban Lab</span>
     </div>
     <p class="footer-motto">
@@ -2095,11 +2413,13 @@
 
     <nav id="dock" aria-label="Navigation par section">
       <button type="button" class="dock-brand" id="dock-home-btn" aria-label="Remonter en haut">
-        <svg width="20" height="19" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="miter" />
-          <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.4" stroke-linecap="round" />
-          <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.7" stroke-linecap="square" />
-        </svg>
+        <img
+          src="/assets/aistudio/Gemini_Generated_Image_a6rjf6a6rjf6a6rj_721b81e6.png"
+          alt="Logo MUL"
+          class="brand-logo-img is-dock"
+          width="28"
+          height="28"
+        />
         <span>MUL</span>
       </button>
 
@@ -2151,11 +2471,13 @@
       </button>
 
       <button type="button" class="pv-brand-center" id="pv-brand-btn" aria-label="Retour à l'accueil Marc Urban Lab">
-        <svg width="22" height="20" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M3 21V4L11 14L19 4V21" stroke="#111113" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" />
-          <path d="M7 19.5V26.5C7 29.8 9.6 32 13 32C16.4 32 19 29.8 19 26.5V19.5" stroke="#1621ff" stroke-width="2.2" stroke-linecap="round" />
-          <path d="M25 4V32H35.5" stroke="#111113" stroke-width="2.5" stroke-linecap="square" />
-        </svg>
+        <img
+          src="/assets/aistudio/Gemini_Generated_Image_a6rjf6a6rjf6a6rj_721b81e6.png"
+          alt="Logo MARC URBAN LAB"
+          class="brand-logo-img is-topbar"
+          width="34"
+          height="34"
+        />
         <span>MARC URBAN LAB</span>
       </button>
 
@@ -4783,28 +5105,45 @@
         });
       }
 
-      // Copy brief button with clean visual feedback
-      copyBtn.addEventListener("click", async () => {
-        const text = buildBriefMessage();
-        let copied = false;
+      // Structured Contact Form Logic (synced with inline brief)
+      const form = document.getElementById("contact-form");
+      const cfName = document.getElementById("cf-name");
+      const cfPhone = document.getElementById("cf-phone");
+      const cfEmail = document.getElementById("cf-email");
+      const cfService = document.getElementById("cf-service");
+      const cfLocation = document.getElementById("cf-location");
+      const cfSurface = document.getElementById("cf-surface");
+      const cfMessage = document.getElementById("cf-message");
+      const cfError = document.getElementById("cf-error");
+      const cfSuccess = document.getElementById("cf-success");
+      const cfSummary = document.getElementById("cf-success-summary");
+      const cfSuccessWa = document.getElementById("cf-success-wa");
+      const cfSuccessCopy = document.getElementById("cf-success-copy");
+      const cfResetBtn = document.getElementById("cf-reset-btn");
+
+      let lastFormSummary = "";
+      let summaryCopyTimer = null;
+
+      async function copyTextSafe(text) {
         try {
           if (navigator.clipboard && navigator.clipboard.writeText) {
             await navigator.clipboard.writeText(text);
-            copied = true;
+            return;
           }
-        } catch {
-          copied = false;
-        }
-        if (!copied) {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          ta.style.position = "fixed";
-          ta.style.opacity = "0";
-          document.body.appendChild(ta);
-          ta.select();
-          try { document.execCommand("copy"); } catch {}
-          document.body.removeChild(ta);
-        }
+        } catch {}
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch {}
+        document.body.removeChild(ta);
+      }
+
+      // Copy brief button with clean visual feedback
+      copyBtn.addEventListener("click", async () => {
+        await copyTextSafe(buildBriefMessage());
         copyBtn.textContent = "Brief copié";
         copyBtn.classList.add("is-copied");
         clearTimeout(copyTimer);
@@ -4814,6 +5153,63 @@
         }, 2200);
       });
 
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const name = cfName.value.trim();
+          const phone = cfPhone.value.trim();
+          const email = cfEmail.value.trim();
+          const service = cfService.value;
+          const location = (cfLocation.value || locInput.value || locInput.placeholder).trim();
+          const surface = cfSurface.value.trim();
+          const details = cfMessage.value.trim();
+
+          if (!name || !phone || !details) {
+            cfError.textContent = "Veuillez renseigner votre nom, votre numéro de téléphone et une brève description du projet.";
+            if (!name) cfName.focus();
+            else if (!phone) cfPhone.focus();
+            else cfMessage.focus();
+            return;
+          }
+
+          cfError.textContent = "";
+          const lines = [
+            "Bonjour Marc Urban Lab, nouvelle demande d'étude :",
+            `• Nom : ${name}`,
+            `• Téléphone : ${phone}`,
+            email ? `• E-mail : ${email}` : null,
+            `• Prestation : ${service}`,
+            location ? `• Localisation : ${location}` : null,
+            surface ? `• Superficie : ${surface}` : null,
+            `• Démarrage souhaité : ${selectedTimeline}`,
+            `• Détails : ${details}`,
+          ].filter(Boolean);
+
+          lastFormSummary = lines.join("\n");
+          cfSummary.textContent = lastFormSummary;
+          cfSuccessWa.href = `https://wa.me/237651763753?text=${encodeURIComponent(lastFormSummary)}`;
+          form.hidden = true;
+          cfSuccess.hidden = false;
+        });
+
+        cfSuccessCopy.addEventListener("click", async () => {
+          await copyTextSafe(lastFormSummary);
+          cfSuccessCopy.textContent = "Récapitulatif copié";
+          cfSuccessCopy.classList.add("is-copied");
+          clearTimeout(summaryCopyTimer);
+          summaryCopyTimer = window.setTimeout(() => {
+            cfSuccessCopy.textContent = "Copier le récapitulatif";
+            cfSuccessCopy.classList.remove("is-copied");
+          }, 2200);
+        });
+
+        cfResetBtn.addEventListener("click", () => {
+          cfSuccess.hidden = true;
+          form.hidden = false;
+          cfName.focus();
+        });
+      }
+
       document.fonts.ready.then(syncBrief);
       window.addEventListener("resize", syncBrief);
       syncBrief();
@@ -4822,6 +5218,17 @@
         prefillType(value) {
           typeInput.value = value;
           syncBrief();
+          if (cfMessage && !cfMessage.value.trim()) {
+            cfMessage.value = `Demande d'étude concernant ${value}.`;
+          }
+          if (cfService) {
+            const lower = value.toLowerCase();
+            if (lower.includes("architecture")) cfService.value = "Architecture 2D/3D";
+            else if (lower.includes("sig") || lower.includes("cartographie")) cfService.value = "Cartographie & SIG";
+            else if (lower.includes("faisabilit")) cfService.value = "Étude de Faisabilité";
+            else if (lower.includes("immobil")) cfService.value = "Gestion & Suivi Immobilier";
+            else if (lower.includes("urbain") || lower.includes("urbanisme") || lower.includes("lotissement")) cfService.value = "Étude Urbaine & Lotissement";
+          }
           window.setTimeout(() => {
             typeInput.focus({ preventScroll: true });
             typeInput.select();
@@ -5068,6 +5475,16 @@
             ease: "power2.out",
           },
           "-=0.55"
+        )
+        .from(
+          ".contact-form-card",
+          {
+            y: 38,
+            opacity: 0,
+            duration: 0.9,
+            ease: "power3.out",
+          },
+          "-=0.7"
         );
 
       // 6. Footer Gentle Settling Reveal
